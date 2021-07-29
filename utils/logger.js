@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-const { errorFormat } = require('./errorFormat');
+const errorFormat  = require('./errorFormat');
 
 class Logger {
 
@@ -30,14 +29,14 @@ class Logger {
 		if (process.env.NODE_ENV !== 'test') {
 			console.log(
 				JSON.stringify({
-					tag: this.prepareTag('log'),
+					tag: this._prepareTag('log'),
 					message,
 					level: 'log',
 					formattedDate: date.toISOString(),
 					env: process.env.NODE_ENV,
 					processId: process.pid,
 					timestamp: date.getTime(),
-					metaData: this.prepareMetaData(metaData),
+					metaData: this._prepareMetaData(metaData),
 				})
 			);
 			console.log(' ');
@@ -50,14 +49,14 @@ class Logger {
 		if (process.env.NODE_ENV !== 'test') {
 			console.error(
 				JSON.stringify({
-					tag: this.prepareTag('error'),
+					tag: this._prepareTag('error'),
 					message,
 					level: 'error',
 					formattedDate: date.toISOString(),
 					env: process.env.NODE_ENV,
 					processId: process.pid,
 					timestamp: date.getTime(),
-					metaData: this.prepareMetaData(metaData),
+					metaData: this._prepareMetaData(metaData),
 				})
 			);
 			console.error(' ');
@@ -65,4 +64,4 @@ class Logger {
 	}
 }
 
-module.export = Logger;
+module.exports = Logger;
