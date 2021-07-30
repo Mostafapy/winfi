@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env' });
 const express = require('express');
 const { Logger } = require('./utils/logger');
 const morgan = require('morgan');
