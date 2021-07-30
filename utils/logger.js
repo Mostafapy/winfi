@@ -1,4 +1,4 @@
-const errorFormat  = require('./errorFormat');
+const { errorFormat }  = require('./errorFormat');
 
 class Logger {
 
@@ -64,4 +64,4 @@ class Logger {
 	}
 }
 
-module.exports = Logger;
+module.exports = { Logger };
