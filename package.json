@@ -19,7 +19,8 @@
     "mysql2": "^2.2.5"
   },
   "devDependencies": {
-    "babel-eslint": "^10.1.0",
+    "@babel/core": "^7.14.8",
+    "@babel/eslint-parser": "^7.14.9",
     "eslint": "^7.31.0",
     "nodemon": "^2.0.12"
   }
