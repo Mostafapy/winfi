@@ -1,33 +1,23 @@
-
 {
-    "rules": {
-        "indent": [
-            2,
-            "tab"
-        ],
-        "quotes": [
-            2,
-            "single"
-        ],
-        "linebreak-style": 2,
-        "semi": [
-            2,
-            "always"
-        ],
-        "no-unused-vars": ["error"],
-        "function-paren-newline": 0,
-        "no-param-reassign": 0,
-        "no-shadow": 0,
-        "prefer-destructuring": ["error", { "object": true, "array": false }]
-    },
-    "env": {
-        "es6": true,
-        "node": true,
-        "browser": true
-    },
-    "extends": "eslint:recommended",
-    "parser":"@babel/eslint-parser",
-    "parserOptions": {
-        "requireConfigFile": false
-    }
+  "rules": {
+    "quotes": [2, "single"],
+    "linebreak-style": 2,
+    "semi": [2, "always"],
+    "no-unused-vars": ["error"],
+    "function-paren-newline": 0,
+    "no-param-reassign": 0,
+    "no-shadow": 0,
+    "prefer-destructuring": ["error", { "object": true, "array": false }],
+    "max-len": ["error", { "code": 80 }]
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true
+  },
+  "extends": "eslint:recommended",
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "requireConfigFile": false
+  }
 }
