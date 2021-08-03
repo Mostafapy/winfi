@@ -1,3 +1,4 @@
-const generateCodesAndOtps = () => Math.floor(Math.random() * (9 * (Math.pow(10, 5)))) + (Math.pow(10, 5));
+const generateCodesAndOtps = () =>
+  Math.floor(Math.random() * (9 * Math.pow(10, 5))) + Math.pow(10, 5);
 
 module.exports = { generateCodesAndOtps };
