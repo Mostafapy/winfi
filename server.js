@@ -38,11 +38,11 @@ if (process.env.NODE_ENV === 'development') {
 // Port
 const port = process.env.PORT || '3000';
 
-// Error Handling Middleware
-app.use(errorHandler);
-
 // Mount Routes
 app.use(routes);
+
+// Error Handling Middleware
+app.use(errorHandler);
 
 // Listen
 const server = app.listen(port, () =>
