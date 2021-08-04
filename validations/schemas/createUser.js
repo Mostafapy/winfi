@@ -8,7 +8,7 @@ const createUserSchema = Joi.object()
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     countryCode: Joi.string().required(),
-    firstName: Joi.string(),
+    firstName: Joi.string().required(),
     lastName: Joi.string(),
     address: Joi.string(),
     age: Joi.date(),
