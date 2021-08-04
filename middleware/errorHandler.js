@@ -1,7 +1,7 @@
 const { Logger } = require('../utils/logger');
 
 const errorHandler = (err, req, res) => {
-  const errorMessageDetails = err.message.split(' ');
+  const errorMessageDetails = err.message.split(',');
 
   const moduleName = errorMessageDetails[0];
 
