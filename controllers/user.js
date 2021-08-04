@@ -18,7 +18,7 @@ const createUser = asyncHandler(async (req, res, next) => {
     return res.status(201).json({
       success: true,
       msg: 'Successfully user is created',
-      data: createdUser,
+      data: { user: createdUser },
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
@@ -41,7 +41,7 @@ const checkIn = asyncHandler(async (req, res, next) => {
     return res.status(200).json({
       success: true,
       msg: 'Successfully retrieved User data',
-      data: user,
+      data: { user },
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
@@ -59,12 +59,12 @@ const checkIn = asyncHandler(async (req, res, next) => {
 const login = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    const user = await checkInService(body);
+    const data = await checkInService(body);
 
     return res.status(200).json({
       success: true,
       msg: 'Successfully retrieved User data',
-      data: user,
+      data: data,
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
