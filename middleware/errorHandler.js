@@ -1,11 +1,12 @@
+/* eslint-disable no-unused-vars */
 const { Logger } = require('../utils/logger');
 
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   const errorMessageDetails = err.message.split(',');
 
   const moduleName = errorMessageDetails[0];
 
-  const message = errorMessageDetails[2];
+  const message = errorMessageDetails[1];
 
   const logger = new Logger(moduleName);
 
