@@ -1,4 +1,4 @@
-const conf = require('./swagger-conf');
+const conf = require('./swaggerConfig');
 const { definitions } = require('./definitions');
 const { docs } = require('./docs');
 
