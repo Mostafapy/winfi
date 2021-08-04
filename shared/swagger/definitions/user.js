@@ -1,6 +1,6 @@
 module.exports = {
   CreateUserRequest: {
-    title: 'CreateUscountryCodeerRequest',
+    title: 'CreateUserRequest',
     required: ['countryCode', 'mobile', 'email', 'password', 'gender'],
     type: 'object',
     properties: {
