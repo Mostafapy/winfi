@@ -1,4 +1,4 @@
-module.exports = (schema) => {
+const requestValidation = (schema) => {
   return (req, res, next) => {
     const validations = [];
     [('headers', 'params', 'query', 'body')].forEach((key) => {
@@ -19,3 +19,5 @@ module.exports = (schema) => {
     next();
   };
 };
+
+module.exports = { requestValidation };
