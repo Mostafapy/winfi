@@ -2,15 +2,15 @@ module.exports = {
   '/user/create': {
     post: {
       tags: ['User'],
-      summary: 'Login',
-      operationId: 'Login',
+      summary: 'Create User',
+      operationId: 'Create User',
       parameters: [],
       requestBody: {
         description: '',
         content: {
           'application/json': {
             schema: {
-              $ref: '#/components/schemas/CreateUserRequestSchema',
+              $ref: '#/components/schemas/CreateUserRequest',
             },
           },
         },

@@ -1,7 +1,7 @@
 const userDefinition = require('./user');
 
 const definitions = {
-  userDefinition,
+  ...userDefinition,
 };
 
 module.exports = { definitions };

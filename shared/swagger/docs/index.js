@@ -1,5 +1,5 @@
 const userDocs = require('./user');
 const docs = {
-  userDocs,
+  ...userDocs,
 };
 module.exports = { docs };
