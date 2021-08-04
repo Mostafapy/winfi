@@ -14,7 +14,7 @@ const createUserSchema = Joi.object()
     age: Joi.date(),
     displayName: Joi.string(),
     likes: Joi.string(),
-    gender: Joi.any().valid(['male', 'female']).required(),
+    gender: Joi.any().valid('male', 'female').required(),
     facebookId: Joi.string(),
     googleId: Joi.string(),
     twitterId: Joi.string(),
