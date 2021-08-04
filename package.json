@@ -16,7 +16,8 @@
     "express": "^4.17.1",
     "joi": "^17.4.1",
     "morgan": "^1.10.0",
-    "mysql2": "^2.2.5"
+    "mysql2": "^2.2.5",
+    "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
