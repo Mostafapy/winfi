@@ -99,6 +99,8 @@ const createUserService = async ({
     lastName = lastName != undefined ? lastName : null;
     address = address != undefined ? address : null;
     displayName = displayName != undefined ? displayName : null;
+    likes = likes != undefined ? likes : null;
+    age = age != undefined ? age : null;
     facebookId = facebookId != undefined ? facebookId : null;
     googleId = googleId != undefined ? googleId : null;
     twitterId = twitterId != undefined ? twitterId : null;
@@ -118,11 +120,15 @@ const createUserService = async ({
 
     const verCode = codesAndOtpsHelpers.generateCodesAndOtps();
 
+    await winficocWinfiDBPromisePool.query('START TRANSACTION');
+    await radiusDBPromisePool.query('START TRANSACTION');
+
     const addedUser = await winficocWinfiDBPromisePool.execute(
-      'insert into  `users` (image, email, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         image,
         email,
+        countryCode,
         mobile,
         hashedPassword,
         address,
@@ -145,16 +151,28 @@ const createUserService = async ({
         fsqToken,
         rememberMe,
         randomCode,
+        0,
+        0,
       ],
     );
 
     await radiusDBPromisePool.execute(
-      'insert  into `radcheck` (username, attribute, op, value) values(?, ?, ?, ?, ?)',
+      'insert  into `radcheck` (username, attribute, op, value) values(?, ?, ?, ?)',
       [mobile, 'MD5-Password', ':=', hashedPassword],
     );
 
-    return Promise.resolve(addedUser);
+    await winficocWinfiDBPromisePool.query('COMMIT');
+    await radiusDBPromisePool.query('COMMIT');
+    const createdUser = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `users` where id = ?',
+      [addedUser[0].insertId],
+    );
+
+    return Promise.resolve(createdUser[0]);
   } catch (err) {
+    await winficocWinfiDBPromisePool.query('ROLLBACK');
+    await radiusDBPromisePool.query('ROLLBACK');
     logger.error(err.message, err);
     err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
