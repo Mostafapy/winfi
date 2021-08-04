@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const { errorHandler } = require('./middleware/errorHandler');
 const { swaggerDocs } = require('./shared/swagger');
+const { routes } = require('./routes');
 
 // Initialize App
 const app = express();
@@ -39,6 +40,9 @@ const port = process.env.PORT || '3000';
 
 // Error Handling Middleware
 app.use(errorHandler);
+
+// Mount Routes
+app.use(routes);
 
 // Listen
 const server = app.listen(port, () =>
