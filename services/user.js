@@ -72,11 +72,15 @@ const createUserService = async ({
   try {
     // First validation of the mobile and email
     if (!validateEmail(email)) {
-      return Promise.reject(new Error(`${moduleName} wrong email`));
+      return Promise.reject(new Error(`${moduleName},Wrong Email`));
     }
 
     if (!validateMobile(mobile, countryCode)) {
-      return Promise.reject(new Error(`${moduleName} wrong mobile`));
+      return Promise.reject(
+        new Error(
+          `${moduleName},Wrong Mobile. Mobile must start with your country code`,
+        ),
+      );
     }
 
     // Check if user exists
@@ -87,7 +91,7 @@ const createUserService = async ({
     );
 
     if (user.length > 0) {
-      return Promise.reject(new Error(`${moduleName} User already exists`));
+      return Promise.reject(new Error(`${moduleName},User already exists`));
     }
 
     // Map unprovided values in the body of request before save in the DB
@@ -152,7 +156,7 @@ const createUserService = async ({
     return Promise.resolve(addedUser);
   } catch (err) {
     logger.error(err.message, err);
-    err.message = `${moduleName} ${err.message}`;
+    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
@@ -174,7 +178,7 @@ const checkInService = async ({ mobile, location /*restrictions*/ }) => {
     );
 
     if (radiusUserGroup.length == 0) {
-      return Promise.reject(new Error(`${moduleName} user not exists`));
+      return Promise.reject(new Error(`${moduleName},user not exists`));
     }
 
     // Update user group with specified location and restriction
@@ -192,7 +196,7 @@ const checkInService = async ({ mobile, location /*restrictions*/ }) => {
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
-    err.message = `${moduleName} ${err.message}`;
+    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
@@ -212,7 +216,7 @@ const loginService = async ({ mobile }) => {
     );
 
     if (user.length == 0) {
-      return Promise.reject(new Error(`${moduleName} user not exists`));
+      return Promise.reject(new Error(`${moduleName},user not exists`));
     }
 
     const userMacs = await searchInDB(
@@ -247,7 +251,7 @@ const loginService = async ({ mobile }) => {
     }
   } catch (err) {
     logger.error(err.message, err);
-    err.message = `${moduleName} ${err.message}`;
+    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
