@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env' });
 const express = require('express');
 const { Logger } = require('./utils/logger');
 const morgan = require('morgan');
+const { errorHandler } = require('./middleware/errorHandler');
 
 // Initialize App
 const app = express();
@@ -30,6 +31,9 @@ if (process.env.NODE_ENV === 'development') {
 
 // Port
 const port = process.env.PORT || '3000';
+
+// Error Handling Middleware
+app.use(errorHandler);
 
 // Listen
 const server = app.listen(port, () =>
