@@ -201,8 +201,8 @@ const checkInService = async ({ mobile, location /*restrictions*/ }) => {
 
     // Update user group with specified location and restriction
     await radiusDBPromisePool.execute(
-      'update `radusergroup` set `groupname` = ? where `username` = ? AND `calledstationid` = ?',
-      [mobile, location],
+      'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
+      [mobile, location, mobile],
     );
 
     // then return this user location
