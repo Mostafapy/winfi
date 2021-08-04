@@ -1,7 +1,14 @@
 module.exports = {
   CreateUserRequest: {
     title: 'CreateUserRequest',
-    required: ['countryCode', 'mobile', 'email', 'password', 'gender'],
+    required: [
+      'countryCode',
+      'mobile',
+      'email',
+      'password',
+      'gender',
+      'firstName',
+    ],
     type: 'object',
     properties: {
       image: {
