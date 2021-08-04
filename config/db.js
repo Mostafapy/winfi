@@ -7,7 +7,7 @@ const winficocWinfiDBPassword = String(
 ).replace('"', '');
 
 // radius DB
-const radiusDBPassword = String(process.env.Radius_DB_MYSQL_PASSWORD).replace(
+const radiusDBPassword = String(process.env.RADIUS_DB_MYSQL_PASSWORD).replace(
   '"',
   '',
 );
@@ -18,7 +18,6 @@ const winficocWinfiPool = mysql.createPool({
   user: process.env.WINFICOC_WINFI_DB_MYSQL_USER,
   password: winficocWinfiDBPassword,
   database: process.env.WINFICOC_WINFI_DB_MYSQL_DBNAME,
-  waitForConnections: true,
 });
 
 // Creating connection pool of radius DB
@@ -27,7 +26,6 @@ const radiusPool = mysql.createPool({
   user: process.env.RADIUS_DB_MYSQL_USER,
   password: radiusDBPassword,
   database: process.env.RADIUS_DB_MYSQL_DBNAME,
-  waitForConnections: true,
 });
 
 // Create promise from pool connection
