@@ -24,7 +24,7 @@ const createUserSchema = Joi.object()
     twAccessAoken: Joi.string(),
     twAccessTokenSecret: Joi.string(),
     gAccessToken: Joi.string(),
-    fsqAoken: Joi.string(),
+    fsqToken: Joi.string(),
     rememberMe: Joi.string(),
     randomCode: Joi.string(),
   });
