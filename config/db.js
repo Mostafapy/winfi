@@ -33,9 +33,9 @@ const radiusPool = mysql.createPool({
 // Create promise from pool connection
 const winficocWinfiDBPromisePool = winficocWinfiPool.promise();
 
-const RadiusDBPromisePool = radiusPool.promise();
+const radiusDBPromisePool = radiusPool.promise();
 
 module.exports = {
   winficocWinfiDBPromisePool,
-  RadiusDBPromisePool,
+  radiusDBPromisePool,
 };
