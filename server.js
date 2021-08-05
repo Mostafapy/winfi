@@ -11,7 +11,7 @@ const { routes } = require('./routes');
 const app = express();
 
 // Swager URI
-app.use('/api/v0/explore', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use('/api/v1/explore', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(express.json());
 
