@@ -17,6 +17,7 @@
     "joi": "^17.4.1",
     "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
+    "ssh2": "^1.2.0",
     "swagger-ui-express": "^4.1.6"
   },
   "devDependencies": {
