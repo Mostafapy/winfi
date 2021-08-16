@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env' });
 const express = require('express');
 const { Logger } = require('./utils/logger');
 const morgan = require('morgan');
+const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const { errorHandler } = require('./middleware/errorHandler');
 const { swaggerDocs } = require('./shared/swagger');
@@ -14,6 +15,9 @@ const app = express();
 app.use('/api/v1/explore', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(express.json());
+
+// Use CORS
+app.use(cors());
 
 // Intialize Logger
 const logger = new Logger('App');
