@@ -5,9 +5,10 @@ module.exports = {
       'countryCode',
       'mobile',
       'email',
-      'password',
       'gender',
       'firstName',
+      'lastName',
+      'age',
     ],
     type: 'object',
     properties: {
