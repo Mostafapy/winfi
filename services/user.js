@@ -219,6 +219,7 @@ const topUpService = async ({ mobile, location, packageValue }) => {
       );
     }
 
+    await radiusDBPromisePool.query('START TRANSACTION');
     // Update user group with specified location and restriction
     await radiusDBPromisePool.execute(
       'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
@@ -241,6 +242,7 @@ const topUpService = async ({ mobile, location, packageValue }) => {
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
+    await radiusDBPromisePool.query('ROLLBACK');
     err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
@@ -271,6 +273,7 @@ const checkInService = async ({
       return Promise.reject(new Error(`${moduleName},User not exists`));
     }
 
+    await radiusDBPromisePool.query('START TRANSACTION');
     // Update user group with specified location and restriction
     await radiusDBPromisePool.execute(
       'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
@@ -290,6 +293,7 @@ const checkInService = async ({
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
+    await radiusDBPromisePool.query('ROLLBACK');
     err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
