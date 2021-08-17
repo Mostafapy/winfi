@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
-const { Client } = require('ssh2');
 const fs = require('fs');
 const path = require('path');
+const sshClient = require('ssh2').Client;
 
 // remove " char from password e.g. "pass" => pass
 // winficocWinfi DB
@@ -23,6 +23,9 @@ const winficocWinfiPool = mysql.createPool({
   database: process.env.WINFICOC_WINFI_DB_MYSQL_DBNAME,
 });
 
+// Create promise from pool WINFI DB connection
+const winficocWinfiDBPromisePool = winficocWinfiPool.promise();
+
 // Creating connection pool of radius DB
 const radiusPool = mysql.createPool({
   host: process.env.RADIUS_DB_MYSQL_HOST,
@@ -31,26 +34,11 @@ const radiusPool = mysql.createPool({
   database: process.env.RADIUS_DB_MYSQL_DBNAME,
 });
 
-// Create promise from pool WINFI DB connection
-const winficocWinfiDBPromisePool = winficocWinfiPool.promise();
-
-// Create promise from pool RADIUS DB connection
 let radiusDBPromisePool;
 
 if (process.env.NODE_ENV == 'production') {
-  // SSH Connection for production
-
-  // create an instance of SSH Client
-  const sshClient = new Client();
-
-  const dbServer = {
-    host: process.env.RADIUS_DB_MYSQL_HOST,
-    port: 3306,
-    user: process.env.RADIUS_DB_MYSQL_USER,
-    password: process.env.RADIUS_DB_MYSQL_PASSWORD,
-    database: process.env.RADIUS_DB_MYSQL_DBNAME,
-  };
-  const tunnelConfig = {
+  // ssh connection
+  const sshConf = {
     host: process.env.RADIUS_SSH_HOST,
     port: 22,
     username: process.env.RADIUS_SSH_USER,
@@ -58,42 +46,44 @@ if (process.env.NODE_ENV == 'production') {
       path.resolve(__dirname, process.env.RADIUS_SSH_PRIVATE_KEY_PATH),
     ),
   };
-  const forwardConfig = {
-    srcHost: '127.0.0.1',
-    srcPort: 3306,
-    dstHost: dbServer.host,
-    dstPort: dbServer.port,
+
+  const sqlConf = {
+    port: 3306,
+    user: process.env.RADIUS_DB_MYSQL_USER,
+    password: radiusDBPassword,
+    database: process.env.RADIUS_DB_MYSQL_DBNAME,
   };
+
+  const ssh = new sshClient();
   const radiusDBSSHConnection = new Promise((resolve, reject) => {
-    sshClient
-      .on('ready', () => {
-        sshClient.forwardOut(
-          forwardConfig.srcHost,
-          forwardConfig.srcPort,
-          forwardConfig.dstHost,
-          forwardConfig.dstPort,
-          (err, stream) => {
+    ssh
+      .on('ready', function () {
+        ssh.forwardOut(
+          '127.0.0.1',
+          24000,
+          '127.0.0.1',
+          3306,
+          function (err, stream) {
             if (err) reject(err);
-            const updatedDbServer = {
-              ...dbServer,
-              stream,
-            };
-            const connection = mysql.createConnection(updatedDbServer);
-            connection.connect((error) => {
-              if (error) {
-                reject(error);
-              }
-              resolve(connection);
-            });
+
+            sqlConf.stream = stream;
+            resolve(mysql.createPool(sqlConf).promise());
           },
         );
       })
-      .connect(tunnelConfig);
+      .connect(sshConf);
   });
-  radiusDBPromisePool = radiusDBSSHConnection;
+
+  // Create promise from pool RADIUS DB connection
+  radiusDBSSHConnection
+    .then((conn) => (radiusDBPromisePool = conn))
+    .catch((err) => {
+      throw err;
+    });
 } else {
-  radiusDBPromisePool = radiusPool.promise();
+  radiusDBPromisePool = radiusPool;
 }
+
 module.exports = {
   winficocWinfiDBPromisePool,
   radiusDBPromisePool,
