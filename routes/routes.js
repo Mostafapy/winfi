@@ -5,17 +5,30 @@ const { requestValidation } = require('../middleware/requestValidation');
 const schemas = require('../validations/schemas');
 
 /** Controllers */
-const { createUser, checkIn, login } = require('../controllers/user');
+const {
+  createUser,
+  checkIn,
+  login,
+  identifyApp,
+  topUp,
+} = require('../controllers/user');
 
 const apiRoutes = express.Router();
 
 apiRoutes.post(
-  '/create',
+  '/register',
   requestValidation(schemas.createUserSchema),
   createUser,
 );
 
-apiRoutes.put('/checkIn', requestValidation(schemas.checkInSchema), checkIn);
+apiRoutes.post(
+  '/identify',
+  requestValidation(schemas.identifyAppSchema),
+  identifyApp,
+);
+apiRoutes.post('/checkIn', requestValidation(schemas.checkInSchema), checkIn);
+
+apiRoutes.post('/topUp', requestValidation(schemas.topUpSchema), topUp);
 
 apiRoutes.post('/login', requestValidation(schemas.loginSchema), login);
 
