@@ -14,7 +14,7 @@ const {
   radiusDBPromisePool,
 } = require('../config/db');
 const { generateToken } = require('../helpers/auth');
-const { connectionPoolPromise } = require('../helpers/connectionPoolPromise');
+const { connectionPoolPromise } = require('../helpers/dbConnections');
 
 // Intialize logger
 const moduleName = 'User Module';
@@ -74,6 +74,12 @@ const createUserService = async ({
   rememberMe,
   randomCode,
 }) => {
+  const winficocWinfiromisePool = await connectionPoolPromise(
+    winficocWinfiDBPromisePool,
+    logger,
+    moduleName,
+  );
+
   const radPromisePool = await connectionPoolPromise(
     radiusDBPromisePool,
     logger,
@@ -95,7 +101,7 @@ const createUserService = async ({
 
     // Check if user exists
     const user = await searchInDB(
-      winficocWinfiDBPromisePool,
+      winficocWinfiromisePool,
       'select * from `users` where `mobile` = ?',
       [mobile],
     );
@@ -130,10 +136,10 @@ const createUserService = async ({
 
     const verCode = generateCodesAndOtps();
 
-    await winficocWinfiDBPromisePool.query('START TRANSACTION');
+    await winficocWinfiromisePool.query('START TRANSACTION');
     await radPromisePool.query('START TRANSACTION');
 
-    await winficocWinfiDBPromisePool.execute(
+    await winficocWinfiromisePool.execute(
       'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         image,
@@ -171,7 +177,7 @@ const createUserService = async ({
       [mobile, 'MD5-Password', ':=', hashedPassword],
     );
 
-    await winficocWinfiDBPromisePool.query('COMMIT');
+    await winficocWinfiromisePool.query('COMMIT');
     await radPromisePool.query('COMMIT');
 
     return Promise.resolve({
@@ -179,7 +185,7 @@ const createUserService = async ({
     });
   } catch (err) {
     console.log(err);
-    await winficocWinfiDBPromisePool.query('ROLLBACK');
+    await winficocWinfiromisePool.query('ROLLBACK');
     await radPromisePool.query('ROLLBACK');
     logger.error(err.message, err);
     err.message = `${moduleName},${err.message}`;
@@ -325,9 +331,15 @@ const checkInService = async ({
  * @returns {Promise | Error}
  */
 const identifyAppService = async ({ mobile, uuid }) => {
+  const winficocWinfiromisePool = await connectionPoolPromise(
+    winficocWinfiDBPromisePool,
+    logger,
+    moduleName,
+  );
+
   try {
     const user = await searchInDB(
-      winficocWinfiDBPromisePool,
+      winficocWinfiromisePool,
       'select * from `users` where `mobile` = ?',
       [mobile],
     );
@@ -365,9 +377,15 @@ const identifyAppService = async ({ mobile, uuid }) => {
  * @returns {Promise | Error}
  */
 const loginService = async ({ mobile }) => {
+  const winficocWinfiromisePool = await connectionPoolPromise(
+    winficocWinfiDBPromisePool,
+    logger,
+    moduleName,
+  );
+
   try {
     const user = await searchInDB(
-      winficocWinfiDBPromisePool,
+      winficocWinfiromisePool,
       'select id from `users` where `mobile` = ?',
       [mobile],
     );
@@ -377,7 +395,7 @@ const loginService = async ({ mobile }) => {
     }
 
     const userMacs = await searchInDB(
-      winficocWinfiDBPromisePool,
+      winficocWinfiromisePool,
       'select * from `user_macs` where `user_id` = ?',
       user[0].id,
     );
@@ -397,7 +415,7 @@ const loginService = async ({ mobile }) => {
       const expiryDate = new Date(
         currentDate.setMonth(currentDate.getMonth() + 6),
       );
-      await winficocWinfiDBPromisePool.execute(
+      await winficocWinfiromisePool.execute(
         'update `user_macs` set `mac` = ? `start_date` = ? expiry_date = ? where `user_id` = ?',
         [newMac, currentDate, expiryDate, user[0].id],
       );
