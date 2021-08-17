@@ -210,15 +210,27 @@ const topUpService = async ({ mobile, location, packageValue }) => {
       return Promise.reject(new Error(`${moduleName},User not exists`));
     }
 
+    // check value to extend is a number
+    if (isNaN(radiusGroup[0].value) == false) {
+      return Promise.reject(
+        new Error(
+          `${moduleName},Wrong group choosed to extend the retrieved package value must be a number`,
+        ),
+      );
+    }
+
     // Update user group with specified location and restriction
     await radiusDBPromisePool.execute(
       'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
       [mobile, location, mobile],
     );
 
+    const packageValueToExtend =
+      parseInt(radiusGroup[0].value) + parseInt(packageValue);
+
     await radiusDBPromisePool.execute(
       'update `radgroupcheck` set `value` = ? where `groupname` = ?',
-      [mobile, packageValue],
+      [mobile, packageValueToExtend.toString()],
     );
     // then return this user location
     const data = await radiusDBPromisePool.execute(
