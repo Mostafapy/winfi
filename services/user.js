@@ -178,6 +178,7 @@ const createUserService = async ({
       uuid,
     });
   } catch (err) {
+    console.log(err);
     await winficocWinfiDBPromisePool.query('ROLLBACK');
     await radPromisePool.query('ROLLBACK');
     logger.error(err.message, err);
