@@ -1,5 +1,7 @@
 const mysql = require('mysql2');
 const { Client } = require('ssh2');
+const fs = require('fs');
+const path = require('path');
 
 // remove " char from password e.g. "pass" => pass
 // winficocWinfi DB
@@ -52,7 +54,9 @@ if (process.env.NODE_ENV == 'production') {
     host: process.env.RADIUS_SSH_HOST,
     port: 22,
     username: process.env.RADIUS_SSH_USER,
-    privateKey: Buffer.from(process.env.RADIUS_SSH_PRIVATE_KEY, 'utf-8'),
+    privateKey: fs.readFileSync(
+      path.resolve(__dirname, process.env.RADIUS_SSH_PRIVATE_KEY_PATH),
+    ),
   };
   const forwardConfig = {
     srcHost: '127.0.0.1',
