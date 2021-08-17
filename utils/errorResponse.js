@@ -16,6 +16,8 @@ class ErrorResponse extends Error {
       this.status = 422;
     } else if (message.includes('exists')) {
       this.status = message.includes('not') ? 404 : 409;
+    } else if (message.includes('authorized')) {
+      this.status = 401;
     } else {
       this.status = 400;
     }
