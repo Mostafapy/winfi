@@ -14,10 +14,12 @@ const {
   radiusDBPromisePool,
 } = require('../config/db');
 const { generateToken } = require('../helpers/auth');
+const { connectionPoolPromise } = require('../helpers/connectionPoolPromise');
 
 // Intialize logger
 const moduleName = 'User Module';
 const logger = new Logger(moduleName);
+
 /**
  * Create user service
  * @param {Object} body
@@ -72,6 +74,11 @@ const createUserService = async ({
   rememberMe,
   randomCode,
 }) => {
+  const radPromisePool = await connectionPoolPromise(
+    radiusDBPromisePool,
+    logger,
+    moduleName,
+  );
   try {
     // First validation of the mobile and email
     if (!validateEmail(email)) {
@@ -124,7 +131,7 @@ const createUserService = async ({
     const verCode = generateCodesAndOtps();
 
     await winficocWinfiDBPromisePool.query('START TRANSACTION');
-    await radiusDBPromisePool.query('START TRANSACTION');
+    await radPromisePool.query('START TRANSACTION');
 
     await winficocWinfiDBPromisePool.execute(
       'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -159,20 +166,20 @@ const createUserService = async ({
       ],
     );
 
-    await radiusDBPromisePool.execute(
+    await radPromisePool.execute(
       'insert  into `radcheck` (username, attribute, op, value) values(?, ?, ?, ?)',
       [mobile, 'MD5-Password', ':=', hashedPassword],
     );
 
     await winficocWinfiDBPromisePool.query('COMMIT');
-    await radiusDBPromisePool.query('COMMIT');
+    await radPromisePool.query('COMMIT');
 
     return Promise.resolve({
       uuid,
     });
   } catch (err) {
     await winficocWinfiDBPromisePool.query('ROLLBACK');
-    await radiusDBPromisePool.query('ROLLBACK');
+    await radPromisePool.query('ROLLBACK');
     logger.error(err.message, err);
     err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
@@ -187,10 +194,15 @@ const createUserService = async ({
  * @returns { Promise | Error }
  */
 const topUpService = async ({ mobile, location, packageValue }) => {
+  const radPromisePool = await connectionPoolPromise(
+    radiusDBPromisePool,
+    logger,
+    moduleName,
+  );
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
-      radiusDBPromisePool,
+      radPromisePool,
       'select * from `radusergroup` where `username` = ?',
       [mobile],
     );
@@ -201,7 +213,7 @@ const topUpService = async ({ mobile, location, packageValue }) => {
 
     // Check if group exists
     const radiusGroup = await searchInDB(
-      radiusDBPromisePool,
+      radPromisePool,
       'select * from `radgroupcheck` where `groupname` = ?',
       [mobile],
     );
@@ -219,9 +231,9 @@ const topUpService = async ({ mobile, location, packageValue }) => {
       );
     }
 
-    await radiusDBPromisePool.query('START TRANSACTION');
+    await radPromisePool.query('START TRANSACTION');
     // Update user group with specified location and restriction
-    await radiusDBPromisePool.execute(
+    await radPromisePool.execute(
       'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
       [mobile, location, mobile],
     );
@@ -229,12 +241,12 @@ const topUpService = async ({ mobile, location, packageValue }) => {
     const packageValueToExtend =
       parseInt(radiusGroup[0].value) + parseInt(packageValue);
 
-    await radiusDBPromisePool.execute(
+    await radPromisePool.execute(
       'update `radgroupcheck` set `value` = ? where `groupname` = ?',
       [mobile, packageValueToExtend.toString()],
     );
     // then return this user location
-    const data = await radiusDBPromisePool.execute(
+    const data = await radPromisePool.execute(
       'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? AND `calledstationid` = ?',
       [mobile, location],
     );
@@ -242,7 +254,7 @@ const topUpService = async ({ mobile, location, packageValue }) => {
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
-    await radiusDBPromisePool.query('ROLLBACK');
+    await radPromisePool.query('ROLLBACK');
     err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
@@ -261,10 +273,15 @@ const checkInService = async ({
   packageName,
   packageValue,
 }) => {
+  const radPromisePool = await connectionPoolPromise(
+    radiusDBPromisePool,
+    logger,
+    moduleName,
+  );
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
-      radiusDBPromisePool,
+      radPromisePool,
       'select * from `radusergroup` where `username` = ?',
       [mobile],
     );
@@ -273,19 +290,19 @@ const checkInService = async ({
       return Promise.reject(new Error(`${moduleName},User not exists`));
     }
 
-    await radiusDBPromisePool.query('START TRANSACTION');
+    await radPromisePool.query('START TRANSACTION');
     // Update user group with specified location and restriction
-    await radiusDBPromisePool.execute(
+    await radPromisePool.execute(
       'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
       [mobile, location, mobile],
     );
 
-    await radiusDBPromisePool.execute(
+    await radPromisePool.execute(
       'insert  into `radgroupcheck` (groupname, attribute, op, value) values(?, ?, ?, ?)',
       [mobile, packageName, ':=', packageValue],
     );
     // then return this user location
-    const data = await radiusDBPromisePool.execute(
+    const data = await radPromisePool.execute(
       'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? AND `calledstationid` = ?',
       [mobile, location],
     );
@@ -293,7 +310,7 @@ const checkInService = async ({
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
-    await radiusDBPromisePool.query('ROLLBACK');
+    await radPromisePool.query('ROLLBACK');
     err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
