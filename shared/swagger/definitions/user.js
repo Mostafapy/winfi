@@ -21,9 +21,6 @@ module.exports = {
       email: {
         type: 'string',
       },
-      password: {
-        type: 'string',
-      },
       countryCode: {
         type: 'string',
       },
@@ -98,18 +95,53 @@ module.exports = {
       },
     },
     example: {
-      phoneNumber: '201027494840',
+      mobile: '201027494840',
     },
   },
   CheckInRequest: {
     title: 'CheckInRequest',
-    required: ['mobile', 'location'],
+    required: ['mobile', 'location', 'packageName', 'packageValue'],
     type: 'object',
     properties: {
       mobile: {
         type: 'string',
       },
       location: {
+        type: 'string',
+      },
+      packageName: {
+        type: 'string',
+      },
+      packageValue: {
+        type: 'string',
+      },
+    },
+  },
+  TopUpRequest: {
+    title: 'TopUpRequest',
+    required: ['mobile', 'location', 'packageValue'],
+    type: 'object',
+    properties: {
+      mobile: {
+        type: 'string',
+      },
+      location: {
+        type: 'string',
+      },
+      packageValue: {
+        type: 'string',
+      },
+    },
+  },
+  IdentifyRequest: {
+    title: 'IdentifyRequest',
+    required: ['mobile', 'uuid'],
+    type: 'object',
+    properties: {
+      mobile: {
+        type: 'string',
+      },
+      uuid: {
         type: 'string',
       },
     },
