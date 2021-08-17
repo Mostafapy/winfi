@@ -1,15 +1,19 @@
 /* eslint-disable max-len */
 // helper functions
 const { Logger } = require('../utils/logger');
-const passwordsHelpers = require('../helpers/passwords');
-const codesAndOtpsHelpers = require('../helpers/codesAndOtps');
-const macAddressHelpers = require('../helpers/macAddresses');
+const {
+  md5HashPassword,
+  generateNewPassword,
+} = require('../helpers/passwords');
+const { generateCodesAndOtps } = require('../helpers/codesAndOtps');
+const { generateMacAddress } = require('../helpers/macAddresses');
 const { validateEmail, validateMobile } = require('../validations/validation');
 const { searchInDB } = require('./search');
 const {
   winficocWinfiDBPromisePool,
   radiusDBPromisePool,
 } = require('../config/db');
+const { generateToken } = require('../helpers/auth');
 
 // Intialize logger
 const moduleName = 'User Module';
@@ -55,7 +59,6 @@ const createUserService = async ({
   gender,
   displayName,
   likes,
-  password,
   facebookId,
   googleId,
   twitterId,
@@ -96,11 +99,9 @@ const createUserService = async ({
 
     // Map unprovided values in the body of request before save in the DB
     image = image != undefined ? image : null;
-    lastName = lastName != undefined ? lastName : null;
     address = address != undefined ? address : null;
     displayName = displayName != undefined ? displayName : null;
     likes = likes != undefined ? likes : null;
-    age = age != undefined ? age : null;
     facebookId = facebookId != undefined ? facebookId : null;
     googleId = googleId != undefined ? googleId : null;
     twitterId = twitterId != undefined ? twitterId : null;
@@ -116,14 +117,16 @@ const createUserService = async ({
     randomCode = randomCode != undefined ? randomCode : null;
 
     // hashPassword
-    const hashedPassword = passwordsHelpers.md5HashPassword(password);
+    const uuid = generateCodesAndOtps();
 
-    const verCode = codesAndOtpsHelpers.generateCodesAndOtps();
+    const hashedPassword = md5HashPassword(generateNewPassword(8)) + uuid;
+
+    const verCode = generateCodesAndOtps();
 
     await winficocWinfiDBPromisePool.query('START TRANSACTION');
     await radiusDBPromisePool.query('START TRANSACTION');
 
-    const addedUser = await winficocWinfiDBPromisePool.execute(
+    await winficocWinfiDBPromisePool.execute(
       'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         image,
@@ -163,13 +166,10 @@ const createUserService = async ({
 
     await winficocWinfiDBPromisePool.query('COMMIT');
     await radiusDBPromisePool.query('COMMIT');
-    const createdUser = await searchInDB(
-      winficocWinfiDBPromisePool,
-      'select * from `users` where id = ?',
-      [addedUser[0].insertId],
-    );
 
-    return Promise.resolve(createdUser[0]);
+    return Promise.resolve({
+      uuid,
+    });
   } catch (err) {
     await winficocWinfiDBPromisePool.query('ROLLBACK');
     await radiusDBPromisePool.query('ROLLBACK');
@@ -180,13 +180,13 @@ const createUserService = async ({
 };
 
 /**
- * Service to get check in hours and restriction of user
+ * Service to get check in hours and restriction of user and extend package value
  * @param {Object} body
  * @param {String} body.mobile
  * @param {String} body.location
  * @returns { Promise | Error }
  */
-const checkInService = async ({ mobile, location /*restrictions*/ }) => {
+const topUpService = async ({ mobile, location, packageValue }) => {
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
@@ -196,7 +196,18 @@ const checkInService = async ({ mobile, location /*restrictions*/ }) => {
     );
 
     if (radiusUserGroup.length == 0) {
-      return Promise.reject(new Error(`${moduleName},user not exists`));
+      return Promise.reject(new Error(`${moduleName},User not exists`));
+    }
+
+    // Check if group exists
+    const radiusGroup = await searchInDB(
+      radiusDBPromisePool,
+      'select * from `radgroupcheck` where `groupname` = ?',
+      [mobile],
+    );
+
+    if (radiusGroup.length == 0) {
+      return Promise.reject(new Error(`${moduleName},User not exists`));
     }
 
     // Update user group with specified location and restriction
@@ -205,6 +216,10 @@ const checkInService = async ({ mobile, location /*restrictions*/ }) => {
       [mobile, location, mobile],
     );
 
+    await radiusDBPromisePool.execute(
+      'update `radgroupcheck` set `value` = ? where `groupname` = ?',
+      [mobile, packageValue],
+    );
     // then return this user location
     const data = await radiusDBPromisePool.execute(
       'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? AND `calledstationid` = ?',
@@ -220,6 +235,96 @@ const checkInService = async ({ mobile, location /*restrictions*/ }) => {
 };
 
 /**
+ * Service to get check in hours and restriction of user
+ * @param {Object} body
+ * @param {String} body.mobile
+ * @param {String} body.location
+ * @returns { Promise | Error }
+ */
+const checkInService = async ({
+  mobile,
+  location,
+  packageName,
+  packageValue,
+}) => {
+  try {
+    // First check if the user exists
+    const radiusUserGroup = await searchInDB(
+      radiusDBPromisePool,
+      'select * from `radusergroup` where `username` = ?',
+      [mobile],
+    );
+
+    if (radiusUserGroup.length == 0) {
+      return Promise.reject(new Error(`${moduleName},User not exists`));
+    }
+
+    // Update user group with specified location and restriction
+    await radiusDBPromisePool.execute(
+      'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
+      [mobile, location, mobile],
+    );
+
+    await radiusDBPromisePool.execute(
+      'insert  into `radgroupcheck` (groupname, attribute, op, value) values(?, ?, ?, ?)',
+      [mobile, packageName, ':=', packageValue],
+    );
+    // then return this user location
+    const data = await radiusDBPromisePool.execute(
+      'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? AND `calledstationid` = ?',
+      [mobile, location],
+    );
+
+    return Promise.resolve(data[0]);
+  } catch (err) {
+    logger.error(err.message, err);
+    err.message = `${moduleName},${err.message}`;
+    return Promise.reject(err);
+  }
+};
+
+/**
+  Service to identify app integerating with apis
+ * @param {Object} body
+ * @param {String} body.mobile
+ * @param {String} body.uuid
+ * @returns {Promise | Error}
+ */
+const identifyAppService = async ({ mobile, uuid }) => {
+  try {
+    const user = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `users` where `mobile` = ?',
+      [mobile],
+    );
+
+    if (user.length == 0) {
+      return Promise.reject(new Error(`${moduleName},User not exists`));
+    }
+
+    if (!user[0].password.endWith(uuid)) {
+      return Promise.reject(
+        new Error(`${moduleName},Not authorized, Failed to identify`),
+      );
+    }
+
+    // generate token
+    const payload = {
+      id: user[0].id,
+      email: user[0].email,
+      mobile: user[0].mobile,
+    };
+
+    const token = generateToken(payload, process.env.SECRET_KEY);
+
+    return Promise.resolve({ token, user: user[0] });
+  } catch (err) {
+    logger.error(err.message, err);
+    err.message = `${moduleName},${err.message}`;
+    return Promise.reject(err);
+  }
+};
+/**
  * Service to login user and get mac address
  * @param {Object} body
  * @param {String} body.mobile
@@ -234,7 +339,7 @@ const loginService = async ({ mobile }) => {
     );
 
     if (user.length == 0) {
-      return Promise.reject(new Error(`${moduleName},user not exists`));
+      return Promise.reject(new Error(`${moduleName},User not exists`));
     }
 
     const userMacs = await searchInDB(
@@ -245,7 +350,7 @@ const loginService = async ({ mobile }) => {
 
     if (userMacs.length == 0) {
       return Promise.resolve({
-        OTP: codesAndOtpsHelpers.generateCodesAndOtps(),
+        OTP: generateCodesAndOtps(),
       });
     }
     // check the expiry of the mac address
@@ -253,7 +358,7 @@ const loginService = async ({ mobile }) => {
 
     if (new Date(userMacs[0].expiry_date).getTime() < currentDate.getTime()) {
       // Generate new mac address
-      const newMac = macAddressHelpers.generateMacAddress();
+      const newMac = generateMacAddress();
       // Generate new expiry date after 6 months
       const expiryDate = new Date(
         currentDate.setMonth(currentDate.getMonth() + 6),
@@ -274,4 +379,10 @@ const loginService = async ({ mobile }) => {
   }
 };
 
-module.exports = { createUserService, checkInService, loginService };
+module.exports = {
+  createUserService,
+  checkInService,
+  identifyAppService,
+  loginService,
+  topUpService,
+};
