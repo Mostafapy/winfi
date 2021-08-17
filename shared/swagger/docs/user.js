@@ -1,5 +1,5 @@
 module.exports = {
-  '/user/create': {
+  '/user/register': {
     post: {
       tags: ['User'],
       summary: 'Create User',
@@ -27,7 +27,8 @@ module.exports = {
                   status: true,
                   message: 'Successfully user is created',
                   data: {
-                    user: 'object',
+                    uuid: 'string',
+                    mobile: 'string',
                   },
                 },
               },
@@ -48,7 +49,7 @@ module.exports = {
     },
   },
   '/user/checkIn': {
-    put: {
+    post: {
       tags: ['User'],
       summary: 'Check User Details',
       operationId: 'CheckIn',
@@ -63,7 +64,8 @@ module.exports = {
             example: {
               mobile: '201027494877',
               location: 'location',
-              restrictions: 'Not defined yet',
+              packageName: 'Time-Limit-Daily',
+              value: '5',
             },
           },
         },
@@ -78,7 +80,60 @@ module.exports = {
               example: {
                 example: {
                   status: true,
-                  message: 'Successfully retrieved User data',
+                  message: 'Successfully retrieved User Group data',
+                  data: {
+                    user: 'object',
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Not Found',
+        },
+        422: {
+          description: 'Input Validation',
+        },
+        500: {
+          description: 'Server Error',
+        },
+      },
+      deprecated: false,
+    },
+  },
+  '/user/topUp': {
+    post: {
+      tags: ['User'],
+      summary: 'Top User Group Package Value',
+      operationId: 'TopUp',
+      parameters: [],
+      requestBody: {
+        description: '',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/TopUpRequestSchema',
+            },
+            example: {
+              mobile: '201027494877',
+              location: 'location',
+              value: '5',
+            },
+          },
+        },
+        required: true,
+      },
+      responses: {
+        200: {
+          description: 'Ok',
+          headers: {},
+          content: {
+            'application/json': {
+              example: {
+                example: {
+                  status: true,
+                  message: 'Successfully retrieved User Group data',
                   data: {
                     user: 'object',
                   },
@@ -114,7 +169,7 @@ module.exports = {
               $ref: '#/components/schemas/LoginpRequest',
             },
             example: {
-              phoneNumber: '201027494877',
+              mobile: '201027494877',
             },
           },
         },
@@ -131,6 +186,59 @@ module.exports = {
                   status: true,
                   message: 'Successfully retrieved User data',
                   data: {},
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Not Found',
+        },
+        422: {
+          description: 'Input Validation',
+        },
+        500: {
+          description: 'Server Error',
+        },
+      },
+      deprecated: false,
+    },
+  },
+  '/user/identify': {
+    post: {
+      tags: ['User'],
+      summary: 'Identify App integrating with our apis',
+      operationId: 'Identify',
+      parameters: [],
+      requestBody: {
+        description: '',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/LoginpRequest',
+            },
+            example: {
+              mobile: '201027494877',
+              uuid: 'dlfjlds19289120sdfk',
+            },
+          },
+        },
+        required: true,
+      },
+      responses: {
+        200: {
+          description: 'Ok',
+          headers: {},
+          content: {
+            'application/json': {
+              example: {
+                example: {
+                  status: true,
+                  message: 'Successfully logged in',
+                  data: {
+                    token: 'string',
+                    user: 'object',
+                  },
                 },
               },
             },
