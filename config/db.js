@@ -75,11 +75,7 @@ if (process.env.NODE_ENV == 'production') {
   });
 
   // Create promise from pool RADIUS DB connection
-  radiusDBSSHConnection
-    .then((conn) => (radiusDBPromisePool = conn))
-    .catch((err) => {
-      throw err;
-    });
+  radiusDBPromisePool = radiusDBSSHConnection;
 } else {
   radiusDBPromisePool = radiusPool;
 }
