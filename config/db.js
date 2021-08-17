@@ -52,7 +52,7 @@ if (process.env.NODE_ENV == 'production') {
     host: process.env.RADIUS_SSH_HOST,
     port: 22,
     username: process.env.RADIUS_SSH_USER,
-    password: Buffer.from(process.env.RADIUS_SSH_PRIVATE_KEY, 'utf-8'),
+    privateKey: Buffer.from(process.env.RADIUS_SSH_PRIVATE_KEY, 'utf-8'),
   };
   const forwardConfig = {
     srcHost: '127.0.0.1',
