@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
 const sshClient = require('ssh2').Client;
+const { sshDBRemoteConnection } = require('../helpers/dbConnections');
 
 // remove " char from password e.g. "pass" => pass
 // winficocWinfi DB
@@ -23,9 +24,6 @@ const winficocWinfiPool = mysql.createPool({
   database: process.env.WINFICOC_WINFI_DB_MYSQL_DBNAME,
 });
 
-// Create promise from pool WINFI DB connection
-const winficocWinfiDBPromisePool = winficocWinfiPool.promise();
-
 // Creating connection pool of radius DB
 const radiusPool = mysql.createPool({
   host: process.env.RADIUS_DB_MYSQL_HOST,
@@ -33,12 +31,35 @@ const radiusPool = mysql.createPool({
   password: radiusDBPassword,
   database: process.env.RADIUS_DB_MYSQL_DBNAME,
 });
-
+let winficocWinfiDBPromisePool;
 let radiusDBPromisePool;
 
 if (process.env.NODE_ENV == 'production') {
-  // ssh connection
-  const sshConf = {
+  // winficoc DB ssh connection
+  const winficocWinfiDBsshConf = {
+    host: process.env.WINFICOC_WINFI_SSH_HOST,
+    port: 22,
+    username: process.env.WINFICOC_WINFI_SSH_USER,
+    password: String(process.env.WINFICOC_WINFI_SSH_PASSWORD).replace('"', ''),
+  };
+
+  const winficocWinfiDBsqlConf = {
+    port: 3306,
+    user: process.env.WINFICOC_WINFI_DB_MYSQL_USER,
+    password: winficocWinfiDBPassword,
+    database: process.env.WINFICOC_WINFI_DB_MYSQL_DBNAME,
+  };
+
+  const winficocWinfisshClient = new sshClient();
+
+  const winficocWinfiDBSSHConnection = sshDBRemoteConnection(
+    winficocWinfiDBsshConf,
+    winficocWinfiDBsqlConf,
+    winficocWinfisshClient,
+  );
+
+  // radius DB ssh connection
+  const radiusDBsshConf = {
     host: process.env.RADIUS_SSH_HOST,
     port: 22,
     username: process.env.RADIUS_SSH_USER,
@@ -47,37 +68,30 @@ if (process.env.NODE_ENV == 'production') {
     ),
   };
 
-  const sqlConf = {
+  const radiusDBsqlConf = {
     port: 3306,
     user: process.env.RADIUS_DB_MYSQL_USER,
     password: radiusDBPassword,
     database: process.env.RADIUS_DB_MYSQL_DBNAME,
   };
 
-  const ssh = new sshClient();
-  const radiusDBSSHConnection = new Promise((resolve, reject) => {
-    ssh
-      .on('ready', function () {
-        ssh.forwardOut(
-          '127.0.0.1',
-          24000,
-          '127.0.0.1',
-          3306,
-          function (err, stream) {
-            if (err) reject(err);
+  const radsshClient = new sshClient();
 
-            sqlConf.stream = stream;
-            resolve(mysql.createPool(sqlConf).promise());
-          },
-        );
-      })
-      .connect(sshConf);
-  });
+  const radiusDBSSHConnection = sshDBRemoteConnection(
+    radiusDBsshConf,
+    radiusDBsqlConf,
+    radsshClient,
+  );
 
+  // Create promise from pool WINFI DB connection
+  winficocWinfiDBPromisePool = winficocWinfiDBSSHConnection;
   // Create promise from pool RADIUS DB connection
   radiusDBPromisePool = radiusDBSSHConnection;
 } else {
-  radiusDBPromisePool = radiusPool;
+  // Create promise from pool WINFI DB connection
+  winficocWinfiDBPromisePool = winficocWinfiPool.promise();
+  // Create promise from pool WINFI DB connection
+  radiusDBPromisePool = radiusPool.promise();
 }
 
 module.exports = {
