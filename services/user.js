@@ -14,7 +14,7 @@ const {
   radiusDBPromisePool,
 } = require('../config/db');
 const { generateToken } = require('../helpers/auth');
-const { connectionPoolPromise } = require('../helpers/connectionPoolPromise');
+const { connectionPoolPromise } = require('../helpers/dbConnections');
 
 // Intialize logger
 const moduleName = 'User Module';
