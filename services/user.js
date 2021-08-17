@@ -119,7 +119,7 @@ const createUserService = async ({
     // hashPassword
     const uuid = generateCodesAndOtps();
 
-    const hashedPassword = md5HashPassword(generateNewPassword(8)) + uuid;
+    const hashedPassword = md5HashPassword(generateNewPassword(4));
 
     const verCode = generateCodesAndOtps();
 
@@ -133,7 +133,7 @@ const createUserService = async ({
         email,
         countryCode,
         mobile,
-        hashedPassword,
+        hashedPassword + uuid,
         address,
         firstName,
         lastName,
