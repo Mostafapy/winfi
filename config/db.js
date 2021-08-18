@@ -15,6 +15,8 @@ const radiusDBPassword = String(process.env.RADIUS_DB_MYSQL_PASSWORD).replace(
   '',
 );
 
+console.log(process.env.WINFICOC_WINFI_DB_MYSQL_USER);
+
 // Creating connection pool of winficocWinfi DB
 const winficocWinfiPool = mysql.createPool({
   host: process.env.WINFICOC_WINFI_DB_MYSQL_HOST,
