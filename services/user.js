@@ -178,12 +178,10 @@ const createUserService = async ({
       uuid,
     });
   } catch (err) {
-    console.log('err');
+    logger.error(err.message, err);
     console.log(err);
     await winficocWinfiDBPromisePool.query('ROLLBACK');
     await radPromisePool.query('ROLLBACK');
-    logger.error(err.message, err);
-    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
@@ -257,7 +255,6 @@ const topUpService = async ({ mobile, location, packageValue }) => {
   } catch (err) {
     logger.error(err.message, err);
     await radPromisePool.query('ROLLBACK');
-    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
@@ -313,7 +310,6 @@ const checkInService = async ({
   } catch (err) {
     logger.error(err.message, err);
     await radPromisePool.query('ROLLBACK');
-    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
@@ -355,7 +351,6 @@ const identifyAppService = async ({ mobile, uuid }) => {
     return Promise.resolve({ token, user: user[0] });
   } catch (err) {
     logger.error(err.message, err);
-    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
@@ -409,7 +404,6 @@ const loginService = async ({ mobile }) => {
     }
   } catch (err) {
     logger.error(err.message, err);
-    err.message = `${moduleName},${err.message}`;
     return Promise.reject(err);
   }
 };
