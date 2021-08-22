@@ -64,8 +64,7 @@ module.exports = {
             example: {
               mobile: '201027494877',
               location: 'location',
-              packageName: 'Time-Limit-Daily',
-              value: '5',
+              groupName: 'group 1',
             },
           },
         },
@@ -118,7 +117,8 @@ module.exports = {
             example: {
               mobile: '201027494877',
               location: 'location',
-              value: '5',
+              groupName: 'group 1',
+              topUpValue: 5,
             },
           },
         },
