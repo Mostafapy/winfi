@@ -191,9 +191,11 @@ const createUserService = async ({
  * @param {Object} body
  * @param {String} body.mobile
  * @param {String} body.location
+ * @param {String} body.groupName
+ * @param {Number} body.topUpValue
  * @returns { Promise | Error }
  */
-const topUpService = async ({ mobile, location, packageValue }) => {
+const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
   const radPromisePool = await connectionPoolPromise(
     radiusDBPromisePool,
     logger,
@@ -203,51 +205,53 @@ const topUpService = async ({ mobile, location, packageValue }) => {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
       radPromisePool,
-      'select * from `radusergroup` where `username` = ?',
-      [mobile],
+      'select * from `radusergroup` where `username` = ? and calledstationid` = ?',
+      [mobile, location],
     );
 
     if (radiusUserGroup.length == 0) {
-      return Promise.reject(new Error(`${moduleName},User not exists`));
+      return Promise.reject(
+        new Error(`${moduleName},Radius user group not exists`),
+      );
     }
 
-    // Check if group exists
-    const radiusGroup = await searchInDB(
-      radPromisePool,
-      'select * from `radgroupcheck` where `groupname` = ?',
-      [mobile],
+    const userGroup = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select value from `groups` where `name` = ?',
+      [groupName],
     );
 
-    if (radiusGroup.length == 0) {
-      return Promise.reject(new Error(`${moduleName},User not exists`));
+    if (userGroup.length == 0) {
+      return Promise.reject(
+        new Error(`${moduleName},Winficoc user group not exists`),
+      );
     }
 
-    // check value to extend is a number
-    if (isNaN(radiusGroup[0].value) == false) {
+    const valueToExtend = userGroup[0].value + topUpValue;
+
+    const requiredUserGroupToExceed = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select id from `groups` where `value` = ?',
+      [valueToExtend],
+    );
+
+    if (requiredUserGroupToExceed.length == 0) {
       return Promise.reject(
-        new Error(
-          `${moduleName},Wrong group choosed to extend the retrieved package value must be a number`,
-        ),
+        new Error(`${moduleName},Required user group to exceed not exists`),
       );
     }
 
     await radPromisePool.query('START TRANSACTION');
     // Update user group with specified location and restriction
-    await radPromisePool.execute(
-      'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
-      [mobile, location, mobile],
-    );
-
-    const packageValueToExtend =
-      parseInt(radiusGroup[0].value) + parseInt(packageValue);
 
     await radPromisePool.execute(
-      'update `radgroupcheck` set `value` = ? where `groupname` = ?',
-      [mobile, packageValueToExtend.toString()],
+      'update `radusergroup` set `groupname` = ?  where `username` = ? and calledstationid` = ?',
+      [String(requiredUserGroupToExceed[0].id), location, mobile],
     );
+
     // then return this user location
     const data = await radPromisePool.execute(
-      'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? AND `calledstationid` = ?',
+      'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
 
@@ -264,14 +268,10 @@ const topUpService = async ({ mobile, location, packageValue }) => {
  * @param {Object} body
  * @param {String} body.mobile
  * @param {String} body.location
+ * @param {String} body.groupName
  * @returns { Promise | Error }
  */
-const checkInService = async ({
-  mobile,
-  location,
-  packageName,
-  packageValue,
-}) => {
+const checkInService = async ({ mobile, location, groupName }) => {
   const radPromisePool = await connectionPoolPromise(
     radiusDBPromisePool,
     logger,
@@ -281,35 +281,43 @@ const checkInService = async ({
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
       radPromisePool,
-      'select * from `radusergroup` where `username` = ?',
-      [mobile],
+      'select * from `radusergroup` where `username` = ? and calledstationid` = ?',
+      [mobile, location],
     );
 
     if (radiusUserGroup.length == 0) {
-      return Promise.reject(new Error(`${moduleName},User not exists`));
+      return Promise.reject(
+        new Error(`${moduleName},Radius user group not exists`),
+      );
     }
 
-    await radPromisePool.query('START TRANSACTION');
+    const userGroup = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select id from `groups` where `name` = ?',
+      [groupName],
+    );
+
+    if (userGroup.length == 0) {
+      return Promise.reject(
+        new Error(`${moduleName},Winficoc user group not exists`),
+      );
+    }
+
     // Update user group with specified location and restriction
     await radPromisePool.execute(
       'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
-      [mobile, location, mobile],
+      [String(userGroup[0].id), location, mobile],
     );
 
-    await radPromisePool.execute(
-      'insert  into `radgroupcheck` (groupname, attribute, op, value) values(?, ?, ?, ?)',
-      [mobile, packageName, ':=', packageValue],
-    );
     // then return this user location
     const data = await radPromisePool.execute(
-      'select  `calledstationid` as location, `username` as mobile from `radusergroup` where `username` = ? AND `calledstationid` = ?',
+      'select  `calledstationid` as location, `username` as mobile, `groupName` as package from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
 
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
-    await radPromisePool.query('ROLLBACK');
     return Promise.reject(err);
   }
 };
