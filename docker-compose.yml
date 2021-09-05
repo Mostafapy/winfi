@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+  winfi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    # docker run -t is allow
+    tty: true
+    # application port, this is take value from env file
+    ports:
+      - 3000:3000
