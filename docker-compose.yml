@@ -11,4 +11,4 @@ services:
     ports:
       - 3000:3000
     volumes: 
-      -../../keys:/winfi/keys
+      - ../../keys:/winfi/keys
