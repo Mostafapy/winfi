@@ -1,6 +1,6 @@
 FROM node:14-alpine 
 
-RUN apk add g++ make python
+RUN apk add g++ make python cmake
 
 RUN apk update \
     apk add --update alpine-sdk && \
