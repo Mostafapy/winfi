@@ -29,4 +29,4 @@ RUN echo "root:node" | chpasswd
 
 EXPOSE 22
 
-CMD ["/usr/sbin/sshd -D && npm run start"]
+CMD ["npm run start"]
