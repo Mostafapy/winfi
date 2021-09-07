@@ -5,7 +5,11 @@ RUN apk add g++ make python cmake
 RUN apk update \
     apk add --update alpine-sdk && \
     apk add libffi-dev openssl-dev && \
-    apk --no-cache --update add build-base 
+    apk --no-cache --update add build-base && \
+    apk --no-cache add curl &&\
+    apk add --update --no-cache openssh 
+
+EXPOSE 22
 
 RUN mkdir -p /winfi/src
 
