@@ -9,7 +9,6 @@ RUN apk update \
     apk --no-cache add curl && \
     apk add --update --no-cache openssh && \
     apk add openrc && \
-    rc-update add sshd && \
     /etc/init.d/sshd start
      
 EXPOSE 22
