@@ -1,15 +1,20 @@
-FROM node:14-alpine 
+FROM ubuntu:20.04
 
-RUN apk add g++ make python cmake
+RUN apt update && \
+    apt install curl && \
+    cd ~ && \
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && \
+    apt-get install -y nodejs && \
+    nodejs -v
 
-RUN apk update \
-    apk add --update alpine-sdk && \
-    apk add libffi-dev openssl-dev && \
-    apk --no-cache --update add build-base && \
-    apk --no-cache add curl && \
-    apk add --update --no-cache openssh && \
-    apk add --update --no-cache openssh-server && \
-    apk add openrc 
+RUN apt install build-essential && \
+    apt install cmake && \
+    apt install make
+
+RUN apt update && \
+    apt install openssh-server && \
+    systemctl status ssh && \
+    ufw allow ssh
 
 RUN mkdir -p /winfi/src
 
@@ -20,12 +25,6 @@ COPY package.json /winfi/src
 RUN npm install
 
 COPY . /winfi/src
-
-RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
-
-RUN ssh-keygen -A 
-
-RUN echo "root:node" | chpasswd
 
 EXPOSE 22
 
