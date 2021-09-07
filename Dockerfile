@@ -8,8 +8,7 @@ RUN apk update \
     apk --no-cache --update add build-base && \
     apk --no-cache add curl && \
     apk add --update --no-cache openssh && \
-    apk add openrc && \
-    /etc/init.d/sshd start
+    apk add openrc 
      
 EXPOSE 22
 
