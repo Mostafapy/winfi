@@ -11,14 +11,6 @@ RUN apk update \
     apk add --update --no-cache openssh-server && \
     apk add openrc 
 
-RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
-
-RUN ssh-keygen -A 
-
-RUN echo "root:node" | chpasswd
-
-EXPOSE 22
-
 RUN mkdir -p /winfi/src
 
 WORKDIR /winfi/src
@@ -29,4 +21,12 @@ RUN npm install
 
 COPY . /winfi/src
 
-CMD ["/usr/sbin/sshd -D", "npm run start"]
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+
+RUN ssh-keygen -A 
+
+RUN echo "root:node" | chpasswd
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd -D && npm run start"]
