@@ -1,18 +1,18 @@
 FROM ubuntu:20.04
 
-RUN apt update && \
-    apt install curl && \
+RUN apt-get update && \
+    apt-get install curl -y && \
     cd ~ && \
     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && \
     apt-get install -y nodejs && \
     nodejs -v
 
-RUN apt install build-essential && \
-    apt install cmake && \
-    apt install make
+RUN apt-get install cmake -y && \
+    apt-get install make -y && \
+    apt-get install build-essential -y
 
-RUN apt update && \
-    apt install openssh-server && \
+RUN apt-get update && \
+    apt-get install openssh-server -y && \
     systemctl status ssh && \
     ufw allow ssh
 
