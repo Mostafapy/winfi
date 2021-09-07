@@ -4,8 +4,9 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
     apt-get install curl -y && \
+    apt-get install -y sudo && \
     cd ~ && \
-    curl -sL https://deb.nodesource.com/setup_lts.x | -E bash - && \
+    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && \
     apt-get install -y nodejs && \
     nodejs -v
 
