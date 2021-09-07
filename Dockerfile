@@ -8,7 +8,7 @@ RUN apk update \
     apk --no-cache --update add build-base && \
     apk --no-cache add curl && \
     apk add --update --no-cache openssh && \
-    apk add rc && \
+    apk add rc-update && \
     rc-update add sshd && \
     /etc/init.d/sshd start
      
