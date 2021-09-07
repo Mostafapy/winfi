@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
 
+ARG DEBIAN_FRONTEND=nointeractive
+
 RUN apt-get update && \
     apt-get install curl -y && \
     cd ~ && \
