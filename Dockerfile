@@ -29,4 +29,4 @@ RUN npm install
 
 COPY . /winfi/src
 
-CMD ["/usr/sbin/sshd", "-D", "npm", "run", "start"]
+CMD ["/usr/sbin/sshd -D", "npm run start"]
