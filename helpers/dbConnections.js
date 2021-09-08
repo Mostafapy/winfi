@@ -4,6 +4,8 @@ const connectionPoolPromise = async (connectionPool, logger, moduleName) => {
   try {
     if (process.env.NODE_ENV == 'production') {
       const pool = await connectionPool;
+      // [TODO] remove it
+      console.log(pool);
       return Promise.resolve(pool);
     }
 
