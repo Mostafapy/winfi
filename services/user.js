@@ -197,7 +197,7 @@ const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
       radPromisePool,
-      'select * from `radusergroup` where `username` = ? and calledstationid` = ?',
+      'select * from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
 
@@ -209,7 +209,7 @@ const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
 
     const userGroup = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select value from `groups` where `name` = ?',
+      'select `value` from `groups` where `name` = ?',
       [groupName],
     );
 
@@ -223,7 +223,7 @@ const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
 
     const requiredUserGroupToExceed = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select id from `groups` where `value` = ?',
+      'select `id` from `groups` where `value` = ?',
       [valueToExtend],
     );
 
@@ -237,7 +237,7 @@ const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
     // Update user group with specified location and restriction
 
     await radPromisePool.execute(
-      'update `radusergroup` set `groupname` = ?  where `username` = ? and calledstationid` = ?',
+      'update `radusergroup` set `groupname` = ?  where `username` = ? and `calledstationid` = ?',
       [String(requiredUserGroupToExceed[0].id), location, mobile],
     );
 
@@ -269,7 +269,7 @@ const checkInService = async ({ mobile, location, groupName }) => {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
       radPromisePool,
-      'select * from `radusergroup` where `username` = ? and calledstationid` = ?',
+      'select * from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
 
@@ -293,7 +293,7 @@ const checkInService = async ({ mobile, location, groupName }) => {
 
     // Update user group with specified location and restriction
     await radPromisePool.execute(
-      'update `radusergroup` set `groupname` = ? calledstationid` = ? where `username` = ?',
+      'update `radusergroup` set `groupname` = ? `calledstationid` = ? where `username` = ?',
       [String(userGroup[0].id), location, mobile],
     );
 
