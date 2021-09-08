@@ -62,14 +62,10 @@ const sshDBRemoteConnection = () => {
           database: process.env.RADIUS_DB_MYSQL_DBNAME,
         };
 
-        const connection = mysql.createConnection(sqlConf).promise();
+        const connection = mysql.createPool(sqlConf).promise();
 
-        connection.on('error', (err) => {
-          reject(err);
-        });
-        connection.connect((err) => {
-          if (err) reject(err);
-          logger.log('Mysql connected as id ' + connection.threadId);
+        connection.on('connection', (conn) => {
+          logger.log('Mysql connected as id ' + conn.threadId);
 
           resolve(connection);
         });
