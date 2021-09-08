@@ -56,7 +56,7 @@ const sshDBRemoteConnection = () => {
          */
 
         const sqlConf = {
-          port: 3306,
+          port: tunnelPort,
           user: process.env.RADIUS_DB_MYSQL_USER,
           password: radiusDBPassword,
           database: process.env.RADIUS_DB_MYSQL_DBNAME,
