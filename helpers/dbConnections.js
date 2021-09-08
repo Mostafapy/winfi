@@ -1,9 +1,10 @@
 const mysql = require('mysql2');
 const fs = require('fs');
 const path = require('path');
-const Tunnel = require('tunnel-ssh');
+const sshClient = require('ssh2').Client;
 const { Logger } = require('../utils/logger');
-const logger = new Logger('DbConnection');
+
+const logger = new Logger('Db Connection');
 
 const connectionPoolPromise = async (connectionPool) => {
   try {
@@ -20,57 +21,48 @@ const connectionPoolPromise = async (connectionPool) => {
 };
 
 const sshDBRemoteConnection = () => {
+  // radius DB
   const radiusDBPassword = String(process.env.RADIUS_DB_MYSQL_PASSWORD).replace(
     '"',
     '',
   );
 
+  // ssh connection
+  const sshConf = {
+    host: process.env.RADIUS_SSH_HOST,
+    port: 22,
+    username: process.env.RADIUS_SSH_USER,
+    privateKey: fs.readFileSync(
+      path.resolve(__dirname, process.env.RADIUS_SSH_PRIVATE_KEY_PATH),
+    ),
+  };
+
+  const sqlConf = {
+    port: 3306,
+    user: process.env.RADIUS_DB_MYSQL_USER,
+    password: radiusDBPassword,
+    database: process.env.RADIUS_DB_MYSQL_DBNAME,
+  };
+
+  const ssh = new sshClient();
+
   return new Promise((resolve, reject) => {
-    const tunnelPort = 33000 + Math.floor(Math.random() * 1000);
+    ssh
+      .on('ready', function () {
+        sshClient.forwardOut(
+          '127.0.0.1',
+          24000,
+          '127.0.0.1',
+          3306,
+          function (err, stream) {
+            if (err) reject(err);
 
-    Tunnel(
-      {
-        //First connect to this server over ssh
-        host: process.env.RADIUS_SSH_HOST,
-        username: process.env.RADIUS_SSH_USER,
-        port: 22,
-        privateKey: fs.readFileSync(
-          path.resolve(__dirname, process.env.RADIUS_SSH_PRIVATE_KEY_PATH),
-        ),
-
-        /**
-         * And forward the inner dstPort (on which mysql is running)
-         * to the host (where your app is running) with a random port
-         */
-        dstPort: 3306,
-        localPort: tunnelPort,
-      },
-      (err) => {
-        if (err) reject(err);
-        logger.log('Tunnel connected');
-
-        /**
-         * Now that the tunnel is running,
-         * it is forwarding our above "dstPort" to localhost/tunnelPort
-         * and we connect to our mysql instance.
-         */
-
-        const sqlConf = {
-          port: tunnelPort,
-          user: process.env.RADIUS_DB_MYSQL_USER,
-          password: radiusDBPassword,
-          database: process.env.RADIUS_DB_MYSQL_DBNAME,
-        };
-
-        const connection = mysql.createPool(sqlConf).promise();
-
-        connection.on('connection', (conn) => {
-          logger.log('Mysql connected as id ' + conn.threadId);
-
-          resolve(connection);
-        });
-      },
-    );
+            sqlConf.stream = stream;
+            resolve(mysql.createPool(sqlConf).promise());
+          },
+        );
+      })
+      .connect(sshConf);
   });
 };
 
