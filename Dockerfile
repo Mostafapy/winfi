@@ -16,8 +16,10 @@ RUN apt-get install cmake -y && \
 
 RUN apt-get update && \
     apt-get install openssh-server -y && \
-    service ssh start && \
-    ufw allow ssh
+    service ssh start 
+
+
+RUN ["/bin/bash", "-c", "ufw allow ssh"]
 
 RUN mkdir -p /winfi/src
 
