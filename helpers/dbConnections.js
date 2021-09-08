@@ -49,7 +49,7 @@ const sshDBRemoteConnection = () => {
   return new Promise((resolve, reject) => {
     ssh
       .on('ready', function () {
-        sshClient.forwardOut(
+        ssh.forwardOut(
           '127.0.0.1',
           24000,
           '127.0.0.1',
