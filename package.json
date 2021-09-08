@@ -19,7 +19,8 @@
     "morgan": "^1.10.0",
     "mysql2": "^2.2.5",
     "ssh2": "^1.2.0",
-    "swagger-ui-express": "^4.1.6"
+    "swagger-ui-express": "^4.1.6",
+    "tunnel-ssh": "^4.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
