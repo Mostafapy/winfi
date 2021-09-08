@@ -62,7 +62,7 @@ const sshDBRemoteConnection = () => {
           database: process.env.RADIUS_DB_MYSQL_DBNAME,
         };
 
-        const connection = mysql.createPool(sqlConf).promise();
+        const connection = mysql.createConnection(sqlConf).promise();
 
         connection.on('error', (err) => {
           reject(err);
