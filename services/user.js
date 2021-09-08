@@ -74,11 +74,7 @@ const createUserService = async ({
   rememberMe,
   randomCode,
 }) => {
-  const radPromisePool = await connectionPoolPromise(
-    radiusDBPromisePool,
-    logger,
-    moduleName,
-  );
+  const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
   try {
     // First validation of the mobile and email
     if (!validateEmail(email)) {
@@ -196,11 +192,7 @@ const createUserService = async ({
  * @returns { Promise | Error }
  */
 const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
-  const radPromisePool = await connectionPoolPromise(
-    radiusDBPromisePool,
-    logger,
-    moduleName,
-  );
+  const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
@@ -272,11 +264,7 @@ const topUpService = async ({ mobile, location, groupName, topUpValue }) => {
  * @returns { Promise | Error }
  */
 const checkInService = async ({ mobile, location, groupName }) => {
-  const radPromisePool = await connectionPoolPromise(
-    radiusDBPromisePool,
-    logger,
-    moduleName,
-  );
+  const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
