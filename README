@@ -1,0 +1,6 @@
+                                                      Welcome to WINFI Backend Apis
+-To deploy please follow this instructions:
+
+1- Create '.env' file.
+2- Copy 'sample.env' to newly created file '.env' and add values to environment variables
+3- open the terminal in same directory and run './deploy.sh'.
