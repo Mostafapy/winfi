@@ -100,7 +100,7 @@ module.exports = {
   },
   CheckInRequest: {
     title: 'CheckInRequest',
-    required: ['mobile', 'location', 'packageName', 'groupName'],
+    required: ['mobile', 'location', 'groupName'],
     type: 'object',
     properties: {
       mobile: {
@@ -116,7 +116,7 @@ module.exports = {
   },
   TopUpRequest: {
     title: 'TopUpRequest',
-    required: ['mobile', 'location', 'groupName', 'topUpValue'],
+    required: ['mobile', 'location', 'topUpValue'],
     type: 'object',
     properties: {
       mobile: {

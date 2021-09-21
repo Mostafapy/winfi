@@ -117,7 +117,6 @@ module.exports = {
             example: {
               mobile: '201027494877',
               location: 'location',
-              groupName: 'group 1',
               topUpValue: 5,
             },
           },
