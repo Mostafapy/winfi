@@ -270,6 +270,7 @@ const checkInService = async ({ mobile, location, groupName }) => {
       [groupName],
     );
 
+    console.log(radiusGroup);
     if (radiusGroup.length == 0) {
       return Promise.reject(
         new Error(`${moduleName},Radius user group not exists`),
@@ -282,12 +283,14 @@ const checkInService = async ({ mobile, location, groupName }) => {
       [mobile, location],
     );
 
+    console.log(radiusUserGroup);
     if (radiusUserGroup.length > 0) {
       await radPromisePool.execute(
         'update `radusergroup` set `groupname` = ?, `calledstationid` = ? where `username` = ?',
         [groupName, location, mobile],
       );
     } else {
+      console.log('enter');
       await radPromisePool.execute(
         'insert into `radusergroup` (`groupname`,`calledstationid`,`username`, `priority`) values(?,?,?,?)',
         [groupName, location, mobile, 0],
