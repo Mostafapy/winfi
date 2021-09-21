@@ -284,7 +284,7 @@ const checkInService = async ({ mobile, location, groupName }) => {
 
     if (radiusUserGroup.length > 0) {
       await radPromisePool.execute(
-        'update `radusergroup` set `groupname` = ? `calledstationid` = ? where `username` = ?',
+        'update `radusergroup` set `groupname` = ?, `calledstationid` = ? where `username` = ?',
         [groupName, location, mobile],
       );
     } else {
