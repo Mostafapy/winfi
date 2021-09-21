@@ -2,7 +2,7 @@ const { connectionPoolPromise } = require('../helpers/dbConnections');
 class DatabaseConnectionFactory {
   constructor() {}
 
-  static async build(connectionPool) {
+  async init(connectionPool) {
     if (!this.instance) {
       this.instance = await connectionPoolPromise(connectionPool);
     }
