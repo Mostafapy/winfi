@@ -208,7 +208,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
 
     const group = await searchInDB(
       radPromisePool,
-      'select value from `radgroupcheck` where `groupname` = ?',
+      'select groupname from `radgroupcheck` where `groupname` = ?',
       [radiusUserGroup[0].groupname],
     );
 
@@ -216,12 +216,23 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
       return Promise.reject(new Error(`${moduleName},group not exists`));
     }
 
-    const valueToExtend = group[0].value + topUpValue;
+    let groupValueStr = '';
+    let groupUnitStr = '';
+    for (let i = 0; i < group[0].groupname.length; i++) {
+      if (isNaN(group[0].groupname[i])) {
+        groupUnitStr = groupUnitStr + group[0].groupname[i];
+      } else {
+        groupValueStr = groupValueStr + group[0].groupname[i];
+      }
+    }
+    const valueToExtend = parseInt(groupValueStr) + topUpValue;
+
+    const requiredGroupNameToExtend = valueToExtend.toString() + groupUnitStr;
 
     const requiredUserGroupToExceed = await searchInDB(
       radPromisePool,
-      'select `groupname` from `radgroupcheck` where `value` = ?',
-      [valueToExtend],
+      'select `groupname` from `radgroupcheck` where `groupname` = ?',
+      [requiredGroupNameToExtend],
     );
 
     if (requiredUserGroupToExceed.length == 0) {
