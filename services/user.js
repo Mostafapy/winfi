@@ -278,7 +278,8 @@ const checkInService = async ({ mobile, location, groupName }) => {
     }
 
     // then return this user location
-    const radiusUserGroup = await radPromisePool.execute(
+    const radiusUserGroup = await searchInDB(
+      radPromisePool,
       'select * from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
@@ -298,7 +299,8 @@ const checkInService = async ({ mobile, location, groupName }) => {
     }
 
     // then return this user location
-    const data = await radPromisePool.execute(
+    const data = await searchInDB(
+      radPromisePool,
       'select  `calledstationid` as location, `username` as mobile, `groupName` as package from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
