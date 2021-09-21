@@ -3,9 +3,9 @@ echo "--------------------------------------------------------------------"
 echo "------------------------------- WINFI -------------------------------"
 echo "--------------------------------------------------------------------"
 
-echo "Pull New Changes (master)"
+echo "Pull New Changes (main)"
 sleep 1
-git pull origin master
+git pull origin main
 
 echo "Stop Docker Images (Production)"
 docker-compose -p winfi-api stop
