@@ -209,7 +209,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
     const group = await searchInDB(
       radPromisePool,
       'select value from `radgroupcheck` where `groupname` = ?',
-      [radiusUserGroup.groupname],
+      [radiusUserGroup[0].groupname],
     );
 
     if (group.length == 0) {
