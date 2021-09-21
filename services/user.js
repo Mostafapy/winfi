@@ -19,7 +19,7 @@ const { connectionPoolPromise } = require('../helpers/dbConnections');
 // Intialize logger
 const moduleName = 'User Module';
 const logger = new Logger(moduleName);
-
+const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
 /**
  * Create user service
  * @param {Object} body
@@ -74,7 +74,6 @@ const createUserService = async ({
   rememberMe,
   randomCode,
 }) => {
-  const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
   try {
     // First validation of the mobile and email
     if (!validateEmail(email)) {
@@ -191,7 +190,6 @@ const createUserService = async ({
  * @returns { Promise | Error }
  */
 const topUpService = async ({ mobile, location, topUpValue }) => {
-  const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
@@ -272,7 +270,6 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
  * @returns { Promise | Error }
  */
 const checkInService = async ({ mobile, location, groupName }) => {
-  const radPromisePool = await connectionPoolPromise(radiusDBPromisePool);
   try {
     // First check if the group exists
     const radiusGroup = await searchInDB(
