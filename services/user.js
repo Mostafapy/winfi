@@ -241,7 +241,6 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
       );
     }
 
-    await radPromisePool.query('START TRANSACTION');
     // Update user group with specified location and restriction
 
     await radPromisePool.execute(
