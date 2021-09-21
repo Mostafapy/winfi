@@ -207,7 +207,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
     }
 
     const group = await searchInDB(
-      winficocWinfiDBPromisePool,
+      radPromisePool,
       'select value from `radgroupcheck` where `groupname` = ?',
       [radiusUserGroup.groupname],
     );
@@ -219,7 +219,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
     const valueToExtend = group[0].value + topUpValue;
 
     const requiredUserGroupToExceed = await searchInDB(
-      winficocWinfiDBPromisePool,
+      radPromisePool,
       'select `groupname` from `radgroupcheck` where `value` = ?',
       [valueToExtend],
     );
