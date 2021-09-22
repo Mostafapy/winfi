@@ -25,12 +25,14 @@ const winficocWinfiPool = mysql.createPool({
 const winficocWinfiDBPromisePool = winficocWinfiPool.promise();
 
 // Creating connection pool of radius DB
-const radiusDBPromisePool = mysql.createPool({
+const radiusDBPool = mysql.createPool({
   host: process.env.RADIUS_DB_MYSQL_HOST,
   user: process.env.RADIUS_DB_MYSQL_USER,
   password: radiusDBPassword,
   database: process.env.RADIUS_DB_MYSQL_DBNAME,
 });
+
+const radiusDBPromisePool = radiusDBPool.promise();
 
 module.exports = {
   winficocWinfiDBPromisePool,
