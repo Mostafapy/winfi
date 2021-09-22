@@ -14,12 +14,11 @@ const {
   radiusDBPromisePool,
 } = require('../config/db');
 const { generateToken } = require('../helpers/auth');
-const { DatabaseConnectionFactory } = require('../utils/dbConnectionFactory');
 
 // Intialize logger
 const moduleName = 'User Module';
 const logger = new Logger(moduleName);
-const databaseConnectionFactory = new DatabaseConnectionFactory();
+
 /**
  * Create user service
  * @param {Object} body
@@ -74,9 +73,6 @@ const createUserService = async ({
   rememberMe,
   randomCode,
 }) => {
-  const radPromisePool = await databaseConnectionFactory.init(
-    radiusDBPromisePool,
-  );
   try {
     // First validation of the mobile and email
     if (!validateEmail(email)) {
@@ -129,7 +125,7 @@ const createUserService = async ({
     const verCode = generateCodesAndOtps();
 
     await winficocWinfiDBPromisePool.query('START TRANSACTION');
-    await radPromisePool.query('START TRANSACTION');
+    await radiusDBPromisePool.query('START TRANSACTION');
 
     await winficocWinfiDBPromisePool.execute(
       'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
@@ -164,13 +160,13 @@ const createUserService = async ({
       ],
     );
 
-    await radPromisePool.execute(
+    await radiusDBPromisePool.execute(
       'insert  into `radcheck` (username, attribute, op, value) values(?, ?, ?, ?)',
       [mobile, 'MD5-Password', ':=', hashedPassword],
     );
 
     await winficocWinfiDBPromisePool.query('COMMIT');
-    await radPromisePool.query('COMMIT');
+    await radiusDBPromisePool.query('COMMIT');
 
     return Promise.resolve({
       uuid,
@@ -179,7 +175,7 @@ const createUserService = async ({
     logger.error(err.message, err);
     console.log(err);
     await winficocWinfiDBPromisePool.query('ROLLBACK');
-    await radPromisePool.query('ROLLBACK');
+    await radiusDBPromisePool.query('ROLLBACK');
     return Promise.reject(err);
   }
 };
@@ -193,14 +189,10 @@ const createUserService = async ({
  * @returns { Promise | Error }
  */
 const topUpService = async ({ mobile, location, topUpValue }) => {
-  const radPromisePool = await databaseConnectionFactory.init(
-    radiusDBPromisePool,
-  );
-
   try {
     // First check if the user exists
     const radiusUserGroup = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select groupname from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
@@ -212,7 +204,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
     }
 
     const group = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select groupname from `radgroupcheck` where `groupname` = ?',
       [radiusUserGroup[0].groupname],
     );
@@ -235,7 +227,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
     const requiredGroupNameToExtend = valueToExtend.toString() + groupUnitStr;
 
     const requiredUserGroupToExceed = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select `groupname` from `radgroupcheck` where `groupname` = ?',
       [requiredGroupNameToExtend],
     );
@@ -248,14 +240,14 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
 
     // Update user group with specified location and restriction
 
-    await radPromisePool.execute(
+    await radiusDBPromisePool.execute(
       'update `radusergroup` set `groupname` = ?  where `username` = ? and `calledstationid` = ?',
       [requiredUserGroupToExceed[0].groupname, mobile, location],
     );
 
     // then return this user location
     const data = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select  * from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
@@ -263,7 +255,7 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
     return Promise.resolve(data[0]);
   } catch (err) {
     logger.error(err.message, err);
-    await radPromisePool.query('ROLLBACK');
+    await radiusDBPromisePool.query('ROLLBACK');
     return Promise.reject(err);
   }
 };
@@ -277,14 +269,10 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
  * @returns { Promise | Error }
  */
 const checkInService = async ({ mobile, location, groupName }) => {
-  const radPromisePool = await databaseConnectionFactory.init(
-    radiusDBPromisePool,
-  );
-
   try {
     // First check if the group exists
     const radiusGroup = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select * from `radgroupcheck` where `groupname` = ?',
       [groupName],
     );
@@ -297,18 +285,18 @@ const checkInService = async ({ mobile, location, groupName }) => {
 
     // then return this user location
     const radiusUserGroup = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select * from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
 
     if (radiusUserGroup.length > 0) {
-      await radPromisePool.execute(
+      await radiusDBPromisePool.execute(
         'update `radusergroup` set `groupname` = ?, `calledstationid` = ? where `username` = ?',
         [groupName, location, mobile],
       );
     } else {
-      await radPromisePool.execute(
+      await radiusDBPromisePool.execute(
         'insert into `radusergroup` (`groupname`,`calledstationid`,`username`, `priority`) values(?,?,?,?)',
         [groupName, location, mobile, 0],
       );
@@ -316,7 +304,7 @@ const checkInService = async ({ mobile, location, groupName }) => {
 
     // then return this user location
     const data = await searchInDB(
-      radPromisePool,
+      radiusDBPromisePool,
       'select  `calledstationid` as location, `username` as mobile, `groupName` as package from `radusergroup` where `username` = ? and `calledstationid` = ?',
       [mobile, location],
     );
