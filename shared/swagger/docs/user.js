@@ -256,4 +256,56 @@ module.exports = {
       deprecated: false,
     },
   },
+  '/user/clearPackage': {
+    delete: {
+      tags: ['User'],
+      summary: 'Check User Details',
+      operationId: 'ClearPackage',
+      parameters: [],
+      requestBody: {
+        description: '',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/CheckInRequestSchema',
+            },
+            example: {
+              mobile: '201027494877',
+              location: 'location',
+            },
+          },
+        },
+        required: true,
+      },
+      responses: {
+        200: {
+          description: 'Ok',
+          headers: {},
+          content: {
+            'application/json': {
+              example: {
+                example: {
+                  status: true,
+                  message: 'Successfully retrieved User Group data',
+                  data: {
+                    user: 'object',
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Not Found',
+        },
+        422: {
+          description: 'Input Validation',
+        },
+        500: {
+          description: 'Server Error',
+        },
+      },
+      deprecated: false,
+    },
+  },
 };
