@@ -11,6 +11,7 @@ const {
   login,
   identifyApp,
   topUp,
+  clearPackage,
 } = require('../controllers/user');
 
 const apiRoutes = express.Router();
@@ -31,5 +32,11 @@ apiRoutes.post('/checkIn', requestValidation(schemas.checkInSchema), checkIn);
 apiRoutes.post('/topUp', requestValidation(schemas.topUpSchema), topUp);
 
 apiRoutes.post('/login', requestValidation(schemas.loginSchema), login);
+
+apiRoutes.delete(
+  '/clearPackage',
+  requestValidation(schemas.clearPackageSchema),
+  clearPackage,
+);
 
 module.exports = apiRoutes;
