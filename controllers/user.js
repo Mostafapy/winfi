@@ -3,10 +3,10 @@ const {
   checkInService,
   identifyAppService,
   topUpService,
+  clearPackageService,
 } = require('../services/user');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { ErrorResponse } = require('../utils/errorResponse');
-const { clearPackageSchema } = require('../validations/schemas');
 
 /**
  * @ [DESC]: Create User Controller
@@ -133,7 +133,7 @@ const login = asyncHandler(async (req, res, next) => {
 const clearPackage = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    await clearPackageSchema(body);
+    await clearPackageService(body);
 
     return res.status(200).json({
       success: true,
