@@ -146,4 +146,17 @@ module.exports = {
       },
     },
   },
+  ClearPackageRequest: {
+    title: 'ClearPackageRequest',
+    required: ['mobile', 'location'],
+    type: 'object',
+    properties: {
+      mobile: {
+        type: 'string',
+      },
+      location: {
+        type: 'string',
+      },
+    },
+  },
 };
