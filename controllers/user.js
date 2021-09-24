@@ -6,6 +6,7 @@ const {
 } = require('../services/user');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { ErrorResponse } = require('../utils/errorResponse');
+const { clearPackageSchema } = require('../validations/schemas');
 
 /**
  * @ [DESC]: Create User Controller
@@ -120,4 +121,35 @@ const login = asyncHandler(async (req, res, next) => {
     next(new ErrorResponse(err.message, err.stack));
   }
 });
-module.exports = { createUser, checkIn, login, identifyApp, topUp };
+
+/**
+ * @ [DESC]: Clear Package Controller
+ * @method DELETE
+ * @param req
+ * @param res
+ * @returns { Promise | Error}
+ */
+
+const clearPackage = asyncHandler(async (req, res, next) => {
+  try {
+    const { body } = req;
+    await clearPackageSchema(body);
+
+    return res.status(200).json({
+      success: true,
+      msg: `Successfully Cleared package on location ${body.location}`,
+      data: null,
+    });
+  } catch (err) {
+    next(new ErrorResponse(err.message, err.stack));
+  }
+});
+
+module.exports = {
+  createUser,
+  checkIn,
+  login,
+  identifyApp,
+  topUp,
+  clearPackage,
+};

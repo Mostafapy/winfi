@@ -317,6 +317,40 @@ const checkInService = async ({ mobile, location, groupName }) => {
 };
 
 /**
+ * Service to remove user package (group)
+ * @param {Object} body
+ * @param {String} body.mobile
+ * @param {String} body.location
+ * @param {String} body.groupName
+ * @returns { Promise | Error }
+ */
+const clearPackageService = async ({ mobile, location }) => {
+  try {
+    // then return this user location
+    const radiusUserGroup = await searchInDB(
+      radiusDBPromisePool,
+      'select * from `radusergroup` where `username` = ? and `calledstationid` = ?',
+      [mobile, location],
+    );
+
+    if (radiusUserGroup.length === 0) {
+      return Promise.reject(
+        new Error(`${moduleName},Radius user group not exists`),
+      );
+    }
+
+    await radiusDBPromisePool.execute(
+      'delete from `radusergroup` where `username` = ? and `calledstationid` = ?',
+      [location, mobile],
+    );
+
+    return Promise.resolve();
+  } catch (err) {
+    logger.error(err.message, err);
+    return Promise.reject(err);
+  }
+};
+/**
   Service to identify app integerating with apis
  * @param {Object} body
  * @param {String} body.mobile
@@ -416,4 +450,5 @@ module.exports = {
   identifyAppService,
   loginService,
   topUpService,
+  clearPackageService,
 };
