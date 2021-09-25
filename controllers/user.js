@@ -3,7 +3,6 @@ const {
   checkInService,
   identifyAppService,
   topUpService,
-  clearPackageService,
 } = require('../services/user');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { ErrorResponse } = require('../utils/errorResponse');
@@ -133,7 +132,12 @@ const login = asyncHandler(async (req, res, next) => {
 const clearPackage = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    await clearPackageService(body);
+    const checkInObj = {
+      ...body,
+      groupName: '0h',
+    };
+
+    await checkIn(checkInObj);
 
     return res.status(200).json({
       success: true,
