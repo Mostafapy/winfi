@@ -109,7 +109,7 @@ const identifyApp = asyncHandler(async (req, res, next) => {
 const login = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    const data = await checkInService(body);
+    const data = await login(body);
 
     return res.status(200).json({
       success: true,
@@ -137,7 +137,7 @@ const clearPackage = asyncHandler(async (req, res, next) => {
       groupName: '0h',
     };
 
-    await checkIn(checkInObj);
+    await checkInService(checkInObj);
 
     return res.status(200).json({
       success: true,
