@@ -3,6 +3,7 @@ const {
   checkInService,
   identifyAppService,
   topUpService,
+  loginService,
 } = require('../services/user');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { ErrorResponse } = require('../utils/errorResponse');
@@ -109,7 +110,7 @@ const identifyApp = asyncHandler(async (req, res, next) => {
 const login = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    const data = await login(body);
+    const data = await loginService(body);
 
     return res.status(200).json({
       success: true,
