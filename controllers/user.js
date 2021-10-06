@@ -1,8 +1,9 @@
 const {
   createUserService,
   checkInService,
-  identifyAppService,
   topUpService,
+  checkUserMacStatusService,
+  generateOtpService,
   loginService,
 } = require('../services/user');
 const { asyncHandler } = require('../middleware/asyncHandler');
@@ -78,44 +79,22 @@ const topUp = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @ [DESC]: Identify App Controller
- * @method POST
- * @param req
- * @param res
- * @returns { Promise | Error}
- */
-const identifyApp = asyncHandler(async (req, res, next) => {
-  try {
-    const { body } = req;
-    const data = await identifyAppService(body);
-
-    return res.status(200).json({
-      success: true,
-      msg: 'Successfully logged in',
-      data,
-    });
-  } catch (err) {
-    next(new ErrorResponse(err.message, err.stack));
-  }
-});
-
-/**
- * @ [DESC]: Login inController
- * @method PUT
+ * @ [DESC]: check user mac status Controller
+ * @method GET
  * @param req
  * @param res
  * @returns { Promise | Error}
  */
 
-const login = asyncHandler(async (req, res, next) => {
+const checkUserMacStatus = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    const data = await loginService(body);
+    const status = await checkUserMacStatusService(body);
 
     return res.status(200).json({
       success: true,
-      msg: 'Successfully retrieved User data',
-      data: data,
+      msg: 'Mac Address Status retrieved successfully',
+      data: status,
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
@@ -150,11 +129,60 @@ const clearPackage = asyncHandler(async (req, res, next) => {
   }
 });
 
+/**
+ * @ [DESC]: Generate OTP Controller
+ * @method POST
+ * @param req
+ * @param res
+ * @returns { Promise | Error}
+ */
+
+const generateOtp = asyncHandler(async (req, res, next) => {
+  try {
+    const { body } = req;
+
+    const data = await generateOtpService(body);
+
+    return res.status(200).json({
+      success: true,
+      msg: `Successfully generate an OTP for mobile ${body.mobile}.`,
+      data,
+    });
+  } catch (err) {
+    next(new ErrorResponse(err.message, err.stack));
+  }
+});
+
+/**
+ * @ [DESC]: Login Controller
+ * @method POST
+ * @param req
+ * @param res
+ * @returns { Promise | Error}
+ */
+
+const login = asyncHandler(async (req, res, next) => {
+  try {
+    const { body } = req;
+
+    await loginService(body);
+
+    return res.status(200).json({
+      success: true,
+      msg: 'Successfully logged in',
+      data: null,
+    });
+  } catch (err) {
+    next(new ErrorResponse(err.message, err.stack));
+  }
+});
+
 module.exports = {
   createUser,
   checkIn,
-  login,
-  identifyApp,
+  checkUserMacStatus,
   topUp,
   clearPackage,
+  generateOtp,
+  login,
 };
