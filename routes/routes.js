@@ -8,10 +8,11 @@ const schemas = require('../validations/schemas');
 const {
   createUser,
   checkIn,
-  login,
-  identifyApp,
+  checkUserMacStatus,
   topUp,
   clearPackage,
+  generateOtp,
+  login,
 } = require('../controllers/user');
 
 const apiRoutes = express.Router();
@@ -22,21 +23,28 @@ apiRoutes.post(
   createUser,
 );
 
-apiRoutes.post(
-  '/identify',
-  requestValidation(schemas.identifyAppSchema),
-  identifyApp,
-);
 apiRoutes.post('/checkIn', requestValidation(schemas.checkInSchema), checkIn);
 
 apiRoutes.post('/topUp', requestValidation(schemas.topUpSchema), topUp);
 
-apiRoutes.post('/login', requestValidation(schemas.loginSchema), login);
+apiRoutes.get(
+  '/checkUserMacStatus',
+  requestValidation(schemas.checkUserMacStatusSchema),
+  checkUserMacStatus,
+);
 
 apiRoutes.delete(
   '/clearPackage',
   requestValidation(schemas.clearPackageSchema),
   clearPackage,
 );
+
+apiRoutes.post(
+  '/generateOtp',
+  requestValidation(schemas.generateOtpSchema),
+  generateOtp,
+);
+
+apiRoutes.post('/login', requestValidation(schemas.loginSchema), login);
 
 module.exports = apiRoutes;
