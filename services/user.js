@@ -6,14 +6,14 @@ const {
   generateNewPassword,
 } = require('../helpers/passwords');
 const { generateCodesAndOtps } = require('../helpers/codesAndOtps');
-const { generateMacAddress } = require('../helpers/macAddresses');
 const { validateEmail, validateMobile } = require('../validations/validation');
 const { searchInDB } = require('./search');
 const {
   winficocWinfiDBPromisePool,
   radiusDBPromisePool,
 } = require('../config/db');
-const { generateToken } = require('../helpers/auth');
+const md5 = require('md5');
+const { generateMacAddress } = require('../helpers/macAddresses');
 
 // Intialize logger
 const moduleName = 'User Module';
@@ -134,7 +134,7 @@ const createUserService = async ({
         email,
         countryCode,
         mobile,
-        hashedPassword + uuid,
+        hashedPassword,
         address,
         firstName,
         lastName,
@@ -315,14 +315,80 @@ const checkInService = async ({ mobile, location, groupName }) => {
     return Promise.reject(err);
   }
 };
+
 /**
-  Service to identify app integerating with apis
+  Service to check if user mac status either "Expired", "Unknown", "Valid"
  * @param {Object} body
- * @param {String} body.mobile
- * @param {String} body.uuid
+ * @param {String} body.mac
  * @returns {Promise | Error}
  */
-const identifyAppService = async ({ mobile, uuid }) => {
+
+const checkUserMacStatusService = async ({ mobile, password }) => {
+  try {
+    const response = {};
+    const user = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `users` where `mobile` = ? and password = ?',
+      [mobile, md5(password)],
+    );
+
+    if (user.length == 0) {
+      return Promise.reject(new Error(`${moduleName},User not exists`));
+    }
+
+    const userMac = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `user_macs` where `user_id` = ?',
+      user[0].id,
+    );
+
+    if (userMac.length == 0) {
+      response.status = 'Unknown';
+      response.phone = mobile;
+    } else if (
+      new Date(userMac[0].expiry_date).getTime() < new Date().getTime()
+    ) {
+      response.status = 'Expired';
+      response.phone = mobile;
+    } else {
+      response.status = 'Valid';
+      response.username = user[0].first_name;
+    }
+
+    return Promise.resolve(response);
+  } catch (err) {
+    logger.error(err.message, err);
+    return Promise.reject(err);
+  }
+};
+
+/**
+  Service to check if choosed place or location is subscriped
+ * @param {Object} body
+ * @param {String} body.serverName
+ * @returns {Promise | Error}
+ */
+const checkPlaceSubscriptionsService = async ({ serverName }) => {
+  try {
+    const place = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `places` where `hotspot_server` = ?',
+      serverName,
+    );
+
+    return Promise.resolve(place);
+  } catch (err) {
+    logger.error(err.message, err);
+    return Promise.reject(err);
+  }
+};
+
+/**
+ * Service to generate 6-digits OTP and add it to user
+ * @param {String} body.mobile
+ * @returns { Promise | }
+ */
+const generateOtpService = async ({ mobile }) => {
   try {
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
@@ -331,78 +397,62 @@ const identifyAppService = async ({ mobile, uuid }) => {
     );
 
     if (user.length == 0) {
-      return Promise.reject(new Error(`${moduleName},User not exists`));
-    }
-
-    if (!user[0].password.endWith(uuid)) {
       return Promise.reject(
-        new Error(`${moduleName},Not authorized, Failed to identify`),
+        new Error(`This mobile ${mobile} is not registered.`),
       );
     }
 
-    // generate token
-    const payload = {
-      id: user[0].id,
-      email: user[0].email,
-      mobile: user[0].mobile,
-    };
+    const otp = generateCodesAndOtps();
 
-    const token = generateToken(payload, process.env.SECRET_KEY);
+    await winficocWinfiDBPromisePool.execute(
+      'update `users` set `random_code` = ? where `mobile` = ?',
+      [otp, mobile],
+    );
 
-    return Promise.resolve({ token, user: user[0] });
+    return Promise.resolve(otp);
   } catch (err) {
     logger.error(err.message, err);
     return Promise.reject(err);
   }
 };
+
 /**
- * Service to login user and get mac address
- * @param {Object} body
- * @param {String} body.mobile
+ * Service to login to the app and generate mac address
+ * @param {String} body.otp
  * @returns {Promise | Error}
  */
-const loginService = async ({ mobile }) => {
+const loginService = async ({ otp }) => {
   try {
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select id from `users` where `mobile` = ?',
-      [mobile],
+      'select * from `user_macs` where `random_code` = ?',
+      [otp],
     );
 
     if (user.length == 0) {
-      return Promise.reject(new Error(`${moduleName},User not exists`));
+      return Promise.reject('Wrong otp');
     }
 
-    const userMacs = await searchInDB(
-      winficocWinfiDBPromisePool,
-      'select * from `user_macs` where `user_id` = ?',
-      user[0].id,
-    );
+    const newMac = generateMacAddress();
 
-    if (userMacs.length == 0) {
-      return Promise.resolve({
-        OTP: generateCodesAndOtps(),
-      });
-    }
-    // check the expiry of the mac address
     const currentDate = new Date();
 
-    if (new Date(userMacs[0].expiry_date).getTime() < currentDate.getTime()) {
-      // Generate new mac address
-      const newMac = generateMacAddress();
-      // Generate new expiry date after 6 months
-      const expiryDate = new Date(
-        currentDate.setMonth(currentDate.getMonth() + 6),
-      );
-      await winficocWinfiDBPromisePool.execute(
-        'update `user_macs` set `mac` = ? `start_date` = ? expiry_date = ? where `user_id` = ?',
-        [newMac, currentDate, expiryDate, user[0].id],
-      );
+    // Generate new expiry date after 6 months
+    const expiryDate = new Date(
+      currentDate.setMonth(currentDate.getMonth() + 6),
+    );
 
-      return Promise.resolve({
-        mac: newMac,
-      });
-    }
+    await winficocWinfiDBPromisePool.execute(
+      'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`) values(?,?,?,?)',
+      [user[0].id, newMac, currentDate, expiryDate],
+    );
+
+    await winficocWinfiDBPromisePool.execute(
+      'update `users` set `random_code` = NULL where `random_code = ?`',
+      [otp],
+    );
+
+    return Promise.resolve();
   } catch (err) {
     logger.error(err.message, err);
     return Promise.reject(err);
@@ -412,7 +462,9 @@ const loginService = async ({ mobile }) => {
 module.exports = {
   createUserService,
   checkInService,
-  identifyAppService,
-  loginService,
   topUpService,
+  checkUserMacStatusService,
+  checkPlaceSubscriptionsService,
+  generateOtpService,
+  loginService,
 };
