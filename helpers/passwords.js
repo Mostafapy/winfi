@@ -1,12 +1,11 @@
-const crypto = require('crypto');
+const md5 = require('md5');
 
 /**
  * Helper function to hash password using MD5
  * @param {String} password
  * @returns { String } Hashed password
  */
-const md5HashPassword = (password) =>
-  crypto.createHash('md5').update(password).digest('hex');
+const md5HashPassword = (password) => md5(password);
 
 /**
  * Helper function to random password using MD5
