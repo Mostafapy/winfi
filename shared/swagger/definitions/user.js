@@ -85,8 +85,21 @@ module.exports = {
     },
   },
 
-  LoginRequest: {
-    title: 'LoginRequest',
+  CheckUserMacStatusRequest: {
+    title: 'CheckUserMacStatusRequest',
+    required: ['mobile', 'password'],
+    type: 'object',
+    properties: {
+      mobile: {
+        type: 'string',
+      },
+      password: {
+        type: 'string',
+      },
+    },
+  },
+  GenerateOtpRequest: {
+    title: 'GenerateOtpRequest',
     required: ['mobile'],
     type: 'object',
     properties: {
@@ -94,8 +107,18 @@ module.exports = {
         type: 'string',
       },
     },
+  },
+  LoginRequest: {
+    title: 'LoginRequest',
+    required: ['otp'],
+    type: 'object',
+    properties: {
+      otp: {
+        type: 'string',
+      },
+    },
     example: {
-      mobile: '201027494840',
+      otp: '494840',
     },
   },
   CheckInRequest: {
@@ -130,19 +153,6 @@ module.exports = {
       },
       topUpValue: {
         type: 'number',
-      },
-    },
-  },
-  IdentifyRequest: {
-    title: 'IdentifyRequest',
-    required: ['mobile', 'uuid'],
-    type: 'object',
-    properties: {
-      mobile: {
-        type: 'string',
-      },
-      uuid: {
-        type: 'string',
       },
     },
   },
