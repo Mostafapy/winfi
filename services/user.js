@@ -352,7 +352,7 @@ const checkUserMacStatusService = async ({ mobile, password }) => {
       response.phone = mobile;
     } else {
       response.status = 'Valid';
-      response.username = user[0].first_name;
+      response.user = user[0];
     }
 
     return Promise.resolve(response);
