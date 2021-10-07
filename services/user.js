@@ -425,7 +425,7 @@ const loginService = async ({ otp }) => {
   try {
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select * from `user_macs` where `random_code` = ?',
+      'select * from `users` where `random_code` = ?',
       [otp],
     );
 
@@ -442,10 +442,23 @@ const loginService = async ({ otp }) => {
       currentDate.setMonth(currentDate.getMonth() + 6),
     );
 
-    await winficocWinfiDBPromisePool.execute(
-      'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`) values(?,?,?,?)',
-      [user[0].id, newMac, currentDate, expiryDate],
+    const userMac = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `user_macs` where `user_id` = ?',
+      user[0].id,
     );
+
+    if (userMac.length == 0) {
+      await winficocWinfiDBPromisePool.execute(
+        'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`) values(?,?,?,?)',
+        [user[0].id, newMac, currentDate, expiryDate],
+      );
+    } else {
+      await winficocWinfiDBPromisePool.execute(
+        'update`user_macs` set `expiry_date` = ? where `user_id` = ? and `mac` = ?',
+        [expiryDate, user[0].id, userMac[0].mac],
+      );
+    }
 
     await winficocWinfiDBPromisePool.execute(
       'update `users` set `random_code` = NULL where `random_code = ?`',
