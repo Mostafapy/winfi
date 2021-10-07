@@ -333,7 +333,7 @@ const checkUserMacStatusService = async ({ mobile, password }) => {
     );
 
     if (user.length == 0) {
-      return Promise.reject(new Error(`${moduleName},User not exists`));
+      return Promise.reject(new Error('User not exists'));
     }
 
     const userMac = await searchInDB(
