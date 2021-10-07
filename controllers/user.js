@@ -89,12 +89,12 @@ const topUp = asyncHandler(async (req, res, next) => {
 const checkUserMacStatus = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
-    const status = await checkUserMacStatusService(body);
+    const data = await checkUserMacStatusService(body);
 
     return res.status(200).json({
       success: true,
       msg: 'Mac Address Status retrieved successfully',
-      data: status,
+      data,
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
