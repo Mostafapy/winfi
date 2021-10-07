@@ -353,6 +353,7 @@ const checkUserMacStatusService = async ({ mobile, password }) => {
     } else {
       response.status = 'Valid';
       response.user = user[0];
+      response.mac = userMac[0].mac;
     }
 
     return Promise.resolve(response);
