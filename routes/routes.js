@@ -27,7 +27,7 @@ apiRoutes.post('/checkIn', requestValidation(schemas.checkInSchema), checkIn);
 
 apiRoutes.post('/topUp', requestValidation(schemas.topUpSchema), topUp);
 
-apiRoutes.get(
+apiRoutes.post(
   '/checkUserMacStatus',
   requestValidation(schemas.checkUserMacStatusSchema),
   checkUserMacStatus,

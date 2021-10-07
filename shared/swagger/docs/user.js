@@ -256,7 +256,7 @@ module.exports = {
     },
   },
   '/user/checkUserMacStatus': {
-    get: {
+    post: {
       tags: ['User'],
       summary: 'Check User Mac Status',
       operationId: 'checkUserMacStatus',
