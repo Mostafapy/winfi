@@ -168,57 +168,7 @@ module.exports = {
               $ref: '#/components/schemas/LoginpRequest',
             },
             example: {
-              mobile: '201027494877',
-            },
-          },
-        },
-        required: true,
-      },
-      responses: {
-        200: {
-          description: 'Ok',
-          headers: {},
-          content: {
-            'application/json': {
-              example: {
-                example: {
-                  status: true,
-                  message: 'Successfully retrieved User data',
-                  data: {},
-                },
-              },
-            },
-          },
-        },
-        404: {
-          description: 'Not Found',
-        },
-        422: {
-          description: 'Input Validation',
-        },
-        500: {
-          description: 'Server Error',
-        },
-      },
-      deprecated: false,
-    },
-  },
-  '/user/identify': {
-    post: {
-      tags: ['User'],
-      summary: 'Identify App integrating with our apis',
-      operationId: 'Identify',
-      parameters: [],
-      requestBody: {
-        description: '',
-        content: {
-          'application/json': {
-            schema: {
-              $ref: '#/components/schemas/LoginpRequest',
-            },
-            example: {
-              mobile: '201027494877',
-              uuid: 'dlfjlds19289120sdfk',
+              otp: '494877',
             },
           },
         },
@@ -234,10 +184,7 @@ module.exports = {
                 example: {
                   status: true,
                   message: 'Successfully logged in',
-                  data: {
-                    token: 'string',
-                    user: 'object',
-                  },
+                  data: null,
                 },
               },
             },
@@ -286,10 +233,109 @@ module.exports = {
               example: {
                 example: {
                   status: true,
-                  message: 'Successfully retrieved User Group data',
+                  message: 'Successfully Cleared package on location location',
                   data: {
                     user: 'object',
                   },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Not Found',
+        },
+        422: {
+          description: 'Input Validation',
+        },
+        500: {
+          description: 'Server Error',
+        },
+      },
+      deprecated: false,
+    },
+  },
+  '/user/checkUserMacStatus': {
+    get: {
+      tags: ['User'],
+      summary: 'Check User Mac Status',
+      operationId: 'checkUserMacStatus',
+      parameters: [],
+      requestBody: {
+        description: '',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/CheckUserMacStatusRequest',
+            },
+            example: {
+              mac: '2C:54:91:88:C9:E3',
+            },
+          },
+        },
+        required: true,
+      },
+      responses: {
+        200: {
+          description: 'Ok',
+          headers: {},
+          content: {
+            'application/json': {
+              example: {
+                example: {
+                  status: true,
+                  message: 'Mac Address Status retrieved successfully',
+                  data: 'Valid OR Expired OR Unkown',
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Not Found',
+        },
+        422: {
+          description: 'Input Validation',
+        },
+        500: {
+          description: 'Server Error',
+        },
+      },
+      deprecated: false,
+    },
+  },
+  '/user/generateOtp': {
+    post: {
+      tags: ['User'],
+      summary: 'Generate Otp',
+      operationId: 'Generate Otp',
+      parameters: [],
+      requestBody: {
+        description: '',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/CheckUserMacStatusRequest',
+            },
+            example: {
+              mobile: '201027494877',
+            },
+          },
+        },
+        required: true,
+      },
+      responses: {
+        200: {
+          description: 'Ok',
+          headers: {},
+          content: {
+            'application/json': {
+              example: {
+                example: {
+                  status: true,
+                  message:
+                    'Successfully generate an OTP for mobile 201027494877.',
+                  data: 'otp generated',
                 },
               },
             },
