@@ -120,7 +120,9 @@ const createUserService = async ({
     // hashPassword
     const uuid = generateCodesAndOtps();
 
-    const hashedPassword = md5HashPassword(generateNewPassword(4));
+    const password = generateNewPassword(4);
+
+    const hashedPassword = md5HashPassword(password);
 
     const verCode = generateCodesAndOtps();
 
@@ -170,6 +172,7 @@ const createUserService = async ({
 
     return Promise.resolve({
       uuid,
+      password,
     });
   } catch (err) {
     logger.error(err.message, err);
