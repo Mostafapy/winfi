@@ -16,21 +16,11 @@ module.exports = {
   },
   servers: [
     {
-      url: '{protocol}://164.90.183.201/api/v0',
+      url: `{protocol}://${process.env.SWAGGER_URL}/api/v0`,
       description: 'Development server (integration)',
       variables: {
         protocol: {
           enum: ['http', 'https'],
-          default: 'http',
-        },
-      },
-    },
-    {
-      url: '{protocol}://localhost:4000/api/v0',
-      description: 'Localhost server (uses test data)',
-      variables: {
-        protocol: {
-          enum: ['http'],
           default: 'http',
         },
       },
