@@ -93,9 +93,6 @@ module.exports = {
       mobile: {
         type: 'string',
       },
-      password: {
-        type: 'string',
-      },
     },
   },
   GenerateOtpRequest: {

@@ -269,7 +269,7 @@ module.exports = {
               $ref: '#/components/schemas/CheckUserMacStatusRequest',
             },
             example: {
-              mac: '2C:54:91:88:C9:E3',
+              mobile: '201027494877',
             },
           },
         },
