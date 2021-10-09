@@ -12,7 +12,6 @@ const {
   winficocWinfiDBPromisePool,
   radiusDBPromisePool,
 } = require('../config/db');
-const md5 = require('md5');
 const { generateMacAddress } = require('../helpers/macAddresses');
 
 // Intialize logger
@@ -326,13 +325,13 @@ const checkInService = async ({ mobile, location, groupName }) => {
  * @returns {Promise | Error}
  */
 
-const checkUserMacStatusService = async ({ mobile, password }) => {
+const checkUserMacStatusService = async ({ mobile }) => {
   try {
     const response = {};
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select * from `users` where `mobile` = ? and password = ?',
-      [mobile, md5(password)],
+      'select * from `users` where `mobile` = ?',
+      [mobile],
     );
 
     if (user.length == 0) {
