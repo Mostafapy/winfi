@@ -353,7 +353,7 @@ const checkUserMacStatusService = async ({ mobile }) => {
       response.phone = mobile;
     } else {
       response.status = 'Valid';
-      response.user = user[0];
+      response.user = JSON.parse(JSON.stringify(user[0]));
       response.mac = userMac[0].mac;
     }
 
