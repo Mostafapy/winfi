@@ -463,7 +463,7 @@ const loginService = async ({ otp }) => {
     }
 
     await winficocWinfiDBPromisePool.execute(
-      'update `users` set `random_code` = NULL where `random_code = ?`',
+      'update `users` set `random_code` = NULL where `random_code` = ?',
       [otp],
     );
 
