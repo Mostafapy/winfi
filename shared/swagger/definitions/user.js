@@ -107,11 +107,17 @@ module.exports = {
   },
   LoginRequest: {
     title: 'LoginRequest',
-    required: ['otp'],
+    required: ['otp', 'browser', 'browserVersion'],
     type: 'object',
     properties: {
       otp: {
         type: 'string',
+      },
+      browser: {
+        type: 'string',
+      },
+      browserVersion: {
+        type: 'string,',
       },
     },
     example: {
