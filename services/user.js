@@ -421,9 +421,11 @@ const generateOtpService = async ({ mobile }) => {
 /**
  * Service to login to the app and generate mac address
  * @param {String} body.otp
+ * @param {String} body.browser
+ * @param {String} body.browserVersion
  * @returns {Promise | Error}
  */
-const loginService = async ({ otp }) => {
+const loginService = async ({ otp, browser, browserVersion }) => {
   try {
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
@@ -440,7 +442,7 @@ const loginService = async ({ otp }) => {
     const currentDate = new Date();
 
     // Generate new expiry date after 6 months
-    const expiryDate = new Date();
+    const expiryDate = currentDate;
     expiryDate.setMonth(currentDate.getMonth() + 6);
 
     const userMac = await searchInDB(
@@ -451,13 +453,13 @@ const loginService = async ({ otp }) => {
 
     if (userMac.length == 0) {
       await winficocWinfiDBPromisePool.execute(
-        'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`) values(?,?,?,?)',
-        [user[0].id, newMac, currentDate, expiryDate],
+        'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`, `browser`, `browser_version`) values(?,?,?,?,?,?)',
+        [user[0].id, newMac, currentDate, expiryDate, browser, browserVersion],
       );
     } else {
       await winficocWinfiDBPromisePool.execute(
-        'update`user_macs` set `expiry_date` = ? where `user_id` = ? and `mac` = ?',
-        [expiryDate, user[0].id, userMac[0].mac],
+        'update`user_macs` set `expiry_date` = ?, `browser` = ?, `browser_version` = ? where `user_id` = ? and `mac` = ?',
+        [expiryDate, browser, browserVersion, user[0].id, userMac[0].mac],
       );
     }
 
