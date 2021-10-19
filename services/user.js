@@ -440,9 +440,8 @@ const loginService = async ({ otp }) => {
     const currentDate = new Date();
 
     // Generate new expiry date after 6 months
-    const expiryDate = new Date(
-      currentDate.setMonth(currentDate.getMonth() + 6),
-    );
+    const expiryDate = new Date();
+    expiryDate.setMonth(currentDate.getMonth() + 6);
 
     const userMac = await searchInDB(
       winficocWinfiDBPromisePool,
