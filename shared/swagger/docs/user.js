@@ -169,6 +169,8 @@ module.exports = {
             },
             example: {
               otp: '494877',
+              browser: 'Chromium',
+              browserVersion: '15.0.874.106',
             },
           },
         },
