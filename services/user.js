@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+// packages
+const moment = require('moment');
 // helper functions
 const { Logger } = require('../utils/logger');
 const {
@@ -439,11 +441,10 @@ const loginService = async ({ otp, browser, browserVersion }) => {
 
     const newMac = generateMacAddress();
 
-    const currentDate = new Date();
+    const currentDate = moment(new Date());
 
     // Generate new expiry date after 6 months
-    const expiryDate = currentDate;
-    expiryDate.setMonth(currentDate.getMonth() + 6);
+    const expiryDate = moment(currentDate).add(6, 'M');
 
     const userMac = await searchInDB(
       winficocWinfiDBPromisePool,
@@ -454,12 +455,25 @@ const loginService = async ({ otp, browser, browserVersion }) => {
     if (userMac.length == 0) {
       await winficocWinfiDBPromisePool.execute(
         'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`, `browser`, `browser_version`) values(?,?,?,?,?,?)',
-        [user[0].id, newMac, currentDate, expiryDate, browser, browserVersion],
+        [
+          user[0].id,
+          newMac,
+          currentDate.toDate(),
+          expiryDate.toDate(),
+          browser,
+          browserVersion,
+        ],
       );
     } else {
       await winficocWinfiDBPromisePool.execute(
         'update`user_macs` set `expiry_date` = ?, `browser` = ?, `browser_version` = ? where `user_id` = ? and `mac` = ?',
-        [expiryDate, browser, browserVersion, user[0].id, userMac[0].mac],
+        [
+          expiryDate.toDate(),
+          browser,
+          browserVersion,
+          user[0].id,
+          userMac[0].mac,
+        ],
       );
     }
 
