@@ -10,5 +10,3 @@ services:
     # application port, this is take value from env file
     ports:
       - 3000:3000
-    volumes: 
-      - ../keys:/winfi/keys
