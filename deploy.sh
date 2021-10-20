@@ -16,7 +16,7 @@ docker-compose -p winfi-api stop
 
 echo "Build And Deploy New Docker Images"
 sleep 1
-docker-compose -p winfi-api up --build  -d
+docker-compose -p winfi-api up --build --force-recreate -d
 
 echo "Delete Old Docker Images"
 sleep 1
