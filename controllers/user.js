@@ -165,12 +165,12 @@ const login = asyncHandler(async (req, res, next) => {
   try {
     const { body } = req;
 
-    await loginService(body);
+    const data = await loginService(body);
 
     return res.status(200).json({
       success: true,
       msg: 'Successfully logged in',
-      data: null,
+      data: data,
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
