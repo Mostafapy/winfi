@@ -433,6 +433,8 @@ const loginService = async ({ otp, browser, browserVersion }) => {
       return Promise.reject('Wrong otp');
     }
 
+    let returnedMac;
+
     const newMac = generateMacAddress();
 
     const currentDate = moment(new Date());
@@ -458,6 +460,8 @@ const loginService = async ({ otp, browser, browserVersion }) => {
           browserVersion,
         ],
       );
+
+      returnedMac = newMac;
     } else {
       await winficocWinfiDBPromisePool.execute(
         'update`user_macs` set `expiry_date` = ?, `browser` = ?, `browser_version` = ? where `user_id` = ? and `mac` = ?',
@@ -469,6 +473,8 @@ const loginService = async ({ otp, browser, browserVersion }) => {
           userMac[0].mac,
         ],
       );
+
+      returnedMac = userMac[0].mac;
     }
 
     await winficocWinfiDBPromisePool.execute(
@@ -476,7 +482,10 @@ const loginService = async ({ otp, browser, browserVersion }) => {
       [otp],
     );
 
-    return Promise.resolve();
+    return Promise.resolve({
+      user: user[0],
+      mac: returnedMac,
+    });
   } catch (err) {
     logger.error(err.message, err);
     return Promise.reject(err);
