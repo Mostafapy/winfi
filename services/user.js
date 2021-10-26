@@ -326,37 +326,31 @@ const checkInService = async ({ mobile, location, groupName }) => {
  * @returns {Promise | Error}
  */
 
-const checkUserMacStatusService = async ({ mobile }) => {
+const checkUserMacStatusService = async ({ mac }) => {
   try {
     const response = {};
-    const user = await searchInDB(
-      winficocWinfiDBPromisePool,
-      'select * from `users` where `mobile` = ?',
-      [mobile],
-    );
-
-    if (user.length == 0) {
-      return Promise.reject(new Error('User not exists'));
-    }
 
     const userMac = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select * from `user_macs` where `user_id` = ?',
-      user[0].id,
+      'select * from `user_macs` where `mac` = ?',
+      mac,
     );
 
     if (userMac.length == 0) {
       response.status = 'Unknown';
-      response.phone = mobile;
     } else if (
       new Date(userMac[0].expiry_date).getTime() < new Date().getTime()
     ) {
       response.status = 'Expired';
-      response.phone = mobile;
     } else {
+      const user = await searchInDB(
+        winficocWinfiDBPromisePool,
+        'select * from `users` where `id` = ?',
+        [userMac[0].user_id],
+      );
       response.status = 'Valid';
       response.user = JSON.parse(JSON.stringify(user[0]));
-      response.mac = userMac[0].mac;
+      response.mac = mac;
     }
 
     return Promise.resolve(response);
