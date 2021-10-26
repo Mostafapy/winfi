@@ -395,9 +395,10 @@ const generateOtpService = async ({ mobile }) => {
     );
 
     if (user.length == 0) {
-      return Promise.reject(
-        new Error(`This mobile ${mobile} is not registered.`),
-      );
+      return Promise.resolve({
+        msg: `This mobile ${mobile} is not registered.`,
+        data: null,
+      });
     }
 
     const otp = generateCodesAndOtps();
@@ -407,7 +408,10 @@ const generateOtpService = async ({ mobile }) => {
       [otp, mobile],
     );
 
-    return Promise.resolve(otp);
+    return Promise.resolve({
+      msg: null,
+      data: otp,
+    });
   } catch (err) {
     logger.error(err.message, err);
     return Promise.reject(err);
@@ -430,7 +434,10 @@ const loginService = async ({ otp, browser, browserVersion }) => {
     );
 
     if (user.length == 0) {
-      return Promise.reject('Wrong otp');
+      return Promise.resolve({
+        user: null,
+        mac: null,
+      });
     }
 
     let returnedMac;

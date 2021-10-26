@@ -144,9 +144,11 @@ const generateOtp = asyncHandler(async (req, res, next) => {
     const data = await generateOtpService(body);
 
     return res.status(200).json({
-      success: true,
-      msg: `Successfully generate an OTP for mobile ${body.mobile}.`,
-      data,
+      success: data.msg ? false : true,
+      msg: data.msg
+        ? data.msg
+        : `Successfully generate an OTP for mobile ${body.mobile}.`,
+      data: data.data,
     });
   } catch (err) {
     next(new ErrorResponse(err.message, err.stack));
@@ -167,9 +169,14 @@ const login = asyncHandler(async (req, res, next) => {
 
     const data = await loginService(body);
 
+    let responseMsg = 'Successfully logged in';
+    if (!data.user) {
+      responseMsg = 'Wrong OTP';
+    }
+
     return res.status(200).json({
       success: true,
-      msg: 'Successfully logged in',
+      msg: responseMsg,
       data: data,
     });
   } catch (err) {
