@@ -483,7 +483,7 @@ const loginService = async ({ otp, browser, browserVersion }) => {
     );
 
     return Promise.resolve({
-      user: user[0],
+      user: JSON.parse(JSON.stringify(user[0])),
       mac: returnedMac,
     });
   } catch (err) {
