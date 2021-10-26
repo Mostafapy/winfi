@@ -87,10 +87,10 @@ module.exports = {
 
   CheckUserMacStatusRequest: {
     title: 'CheckUserMacStatusRequest',
-    required: ['mobile', 'password'],
+    required: ['mac'],
     type: 'object',
     properties: {
-      mobile: {
+      mac: {
         type: 'string',
       },
     },
