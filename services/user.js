@@ -273,6 +273,17 @@ const topUpService = async ({ mobile, location, topUpValue }) => {
  */
 const checkInService = async ({ mobile, location, groupName }) => {
   try {
+    // check if the user exists or not
+    const user = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `users` where `mobile` = ?',
+      [mobile],
+    );
+
+    if (user.length == 0) {
+      return Promise.reject('User not exist');
+    }
+
     // First check if the group exists
     const radiusGroup = await searchInDB(
       radiusDBPromisePool,
