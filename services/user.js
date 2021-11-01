@@ -438,6 +438,12 @@ const generateOtpService = async ({ mobile }) => {
  */
 const loginService = async ({ otp, browser, browserVersion }) => {
   try {
+    if (!otp) {
+      return Promise.resolve({
+        user: null,
+        mac: null,
+      });
+    }
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
       'select * from `users` where `random_code` = ?',
