@@ -431,7 +431,10 @@ const generateOtpService = async ({ mobile }) => {
 
     return Promise.resolve({
       msg: null,
-      data: otp,
+      data: {
+        otp,
+        user: user[0],
+      },
     });
   } catch (err) {
     logger.error(err.message, err);
