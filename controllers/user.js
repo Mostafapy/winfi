@@ -144,7 +144,7 @@ const generateOtp = asyncHandler(async (req, res, next) => {
     const data = await generateOtpService(body);
 
     return res.status(200).json({
-      success: data.msg ? false : true,
+      success: true,
       msg: data.msg
         ? data.msg
         : `Successfully generate an OTP for mobile ${body.mobile}.`,
