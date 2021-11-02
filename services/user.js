@@ -409,6 +409,12 @@ const checkPlaceSubscriptionsService = async ({ serverName }) => {
  */
 const generateOtpService = async ({ mobile }) => {
   try {
+    if (!mobile && mobile == '') {
+      return Promise.resolve({
+        msg: 'This mobile is not registered.',
+        data: null,
+      });
+    }
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
       'select * from `users` where `mobile` = ?',
