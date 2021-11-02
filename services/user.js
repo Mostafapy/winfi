@@ -285,10 +285,20 @@ const checkInService = async ({ mobile, location, groupName }) => {
     }
 
     // First check if the group exists
+    const winfiGroup = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `groups` where `name` = ?',
+      [groupName],
+    );
+
+    if (winfiGroup.length == 0) {
+      return Promise.reject(new Error(`${moduleName},Winfi group not exists`));
+    }
+
     const radiusGroup = await searchInDB(
       radiusDBPromisePool,
       'select * from `radgroupcheck` where `groupname` = ?',
-      [groupName],
+      [winfiGroup[0].id.toString()],
     );
 
     if (radiusGroup.length == 0) {
