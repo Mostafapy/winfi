@@ -451,7 +451,7 @@ const generateOtpService = async ({ mobile }) => {
  */
 const loginService = async ({ otp, browser, browserVersion }) => {
   try {
-    if (!otp) {
+    if (!otp || otp == '') {
       return Promise.resolve({
         user: null,
         mac: null,
