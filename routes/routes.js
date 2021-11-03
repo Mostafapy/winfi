@@ -13,6 +13,7 @@ const {
   clearPackage,
   generateOtp,
   login,
+  connectUser,
 } = require('../controllers/user');
 
 const apiRoutes = express.Router();
@@ -46,5 +47,11 @@ apiRoutes.post(
 );
 
 apiRoutes.post('/login', requestValidation(schemas.loginSchema), login);
+
+apiRoutes.post(
+  '/connectUser',
+  requestValidation(schemas.connectUserSchema),
+  connectUser,
+);
 
 module.exports = apiRoutes;
