@@ -126,7 +126,7 @@ const createUserService = async ({
     await radiusDBPromisePool.query('START TRANSACTION');
 
     await winficocWinfiDBPromisePool.execute(
-      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, verified, deleted, ver_code) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, verified, deleted, ver_code, random_code) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         image,
         email,
@@ -154,6 +154,7 @@ const createUserService = async ({
         0,
         0,
         generateCodesAndOtps(),
+        password,
       ],
     );
 
