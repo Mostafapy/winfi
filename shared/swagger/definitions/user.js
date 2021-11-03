@@ -172,4 +172,14 @@ module.exports = {
       },
     },
   },
+  ConnectUserRequest: {
+    title: 'ConnectUserRequest',
+    required: ['mac'],
+    type: 'object',
+    properties: {
+      mac: {
+        type: 'string',
+      },
+    },
+  },
 };

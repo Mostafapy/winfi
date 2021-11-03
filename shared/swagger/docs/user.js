@@ -272,7 +272,7 @@ module.exports = {
               $ref: '#/components/schemas/CheckUserMacStatusRequest',
             },
             example: {
-              mobile: '201027494877',
+              mac: '',
             },
           },
         },
@@ -339,6 +339,55 @@ module.exports = {
                   message:
                     'Successfully generate an OTP for mobile 201027494877.',
                   data: 'otp generated',
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Not Found',
+        },
+        422: {
+          description: 'Input Validation',
+        },
+        500: {
+          description: 'Server Error',
+        },
+      },
+      deprecated: false,
+    },
+  },
+  '/user/connectUser': {
+    post: {
+      tags: ['User'],
+      summary: 'Connect User To Internet',
+      operationId: 'connectUser',
+      parameters: [],
+      requestBody: {
+        description: '',
+        content: {
+          'application/json': {
+            schema: {
+              $ref: '#/components/schemas/connectUserRequest',
+            },
+            example: {
+              mac: '',
+            },
+          },
+        },
+        required: true,
+      },
+      responses: {
+        200: {
+          description: 'Ok',
+          headers: {},
+          content: {
+            'application/json': {
+              example: {
+                example: {
+                  status: true,
+                  message: 'Successfully user connected',
+                  data: { user: '<USER OBJECT>' },
                 },
               },
             },
