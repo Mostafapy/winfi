@@ -431,7 +431,7 @@ const generateOtpService = async ({ mobile }) => {
     return Promise.resolve({
       msg: null,
       data: {
-        otp: returnedUser[0].ver_Code,
+        otp: returnedUser[0].ver_code,
         user: returnedUser[0],
       },
     });
