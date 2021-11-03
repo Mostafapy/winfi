@@ -6,7 +6,7 @@ const { checkUserMacStatusSchema } = require('./checkUserMacStatus');
 const { checkPlaceSubscriptionsSchema } = require('./checkPlaceSubscriptions');
 const { generateOtpSchema } = require('./generateOtpSchema');
 const { loginSchema } = require('./login');
-
+const { connectUserSchema } = require('./connectUser');
 module.exports = {
   createUserSchema,
   checkInSchema,
@@ -16,4 +16,5 @@ module.exports = {
   checkPlaceSubscriptionsSchema,
   generateOtpSchema,
   loginSchema,
+  connectUserSchema,
 };
