@@ -422,26 +422,24 @@ const generateOtpService = async ({ mobile }) => {
       });
     }
 
-    if (user[0].random_code) {
-      return Promise.resolve({
-        msg: 'Already sent verification code to This mobile',
-        data: {
-          user: user[0],
-        },
-      });
-    }
     const otp = generateCodesAndOtps();
 
     await winficocWinfiDBPromisePool.execute(
-      'update `users` set `random_code` = ? where `mobile` = ?',
+      'update `users` set `ver_code` = ? where `mobile` = ?',
       [otp, mobile],
+    );
+
+    const returnedUser = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `users` where `mobile` = ?',
+      [mobile],
     );
 
     return Promise.resolve({
       msg: null,
       data: {
         otp,
-        user: user[0],
+        user: returnedUser[0],
       },
     });
   } catch (err) {
@@ -467,7 +465,7 @@ const loginService = async ({ otp, browser, browserVersion }) => {
     }
     const user = await searchInDB(
       winficocWinfiDBPromisePool,
-      'select * from `users` where `random_code` = ?',
+      'select * from `users` where `ver_code` = ?',
       [otp],
     );
 
@@ -523,7 +521,7 @@ const loginService = async ({ otp, browser, browserVersion }) => {
     }
 
     await winficocWinfiDBPromisePool.execute(
-      'update `users` set `random_code` = NULL where `random_code` = ?',
+      'update `users` set `random_code` = NULL where `ver_code` = ?',
       [otp],
     );
 
