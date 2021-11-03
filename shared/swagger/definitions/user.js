@@ -104,7 +104,7 @@ module.exports = {
   },
   LoginRequest: {
     title: 'LoginRequest',
-    required: ['browser', 'browserVersion'],
+    required: ['browser', 'browserVersion', 'macAddress'],
     type: 'object',
     properties: {
       otp: {
@@ -114,6 +114,9 @@ module.exports = {
         type: 'string',
       },
       browserVersion: {
+        type: 'string,',
+      },
+      macAddress: {
         type: 'string,',
       },
     },
