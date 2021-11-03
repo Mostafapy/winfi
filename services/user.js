@@ -14,7 +14,6 @@ const {
   winficocWinfiDBPromisePool,
   radiusDBPromisePool,
 } = require('../config/db');
-const { generateMacAddress } = require('../helpers/macAddresses');
 
 // Intialize logger
 const moduleName = 'User Module';
@@ -127,7 +126,7 @@ const createUserService = async ({
     await radiusDBPromisePool.query('START TRANSACTION');
 
     await winficocWinfiDBPromisePool.execute(
-      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, verified, deleted, ver_code) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         image,
         email,
@@ -154,6 +153,7 @@ const createUserService = async ({
         rememberMe,
         0,
         0,
+        generateCodesAndOtps(),
       ],
     );
 
@@ -422,13 +422,6 @@ const generateOtpService = async ({ mobile }) => {
       });
     }
 
-    const otp = generateCodesAndOtps();
-
-    await winficocWinfiDBPromisePool.execute(
-      'update `users` set `ver_code` = ? where `mobile` = ?',
-      [otp, mobile],
-    );
-
     const returnedUser = await searchInDB(
       winficocWinfiDBPromisePool,
       'select * from `users` where `mobile` = ?',
@@ -438,7 +431,7 @@ const generateOtpService = async ({ mobile }) => {
     return Promise.resolve({
       msg: null,
       data: {
-        otp,
+        otp: returnedUser[0].ver_Code,
         user: returnedUser[0],
       },
     });
@@ -453,9 +446,10 @@ const generateOtpService = async ({ mobile }) => {
  * @param {String} body.otp
  * @param {String} body.browser
  * @param {String} body.browserVersion
+ * @param {String} body.macAddress
  * @returns {Promise | Error}
  */
-const loginService = async ({ otp, browser, browserVersion }) => {
+const loginService = async ({ otp, browser, browserVersion, macAddress }) => {
   try {
     if (!otp || otp == '') {
       return Promise.resolve({
@@ -478,8 +472,6 @@ const loginService = async ({ otp, browser, browserVersion }) => {
 
     let returnedMac;
 
-    const newMac = generateMacAddress();
-
     const currentDate = moment(new Date());
 
     // Generate new expiry date after 6 months
@@ -496,7 +488,7 @@ const loginService = async ({ otp, browser, browserVersion }) => {
         'insert into `user_macs` (`user_id`,`mac`,`date_added`, `expiry_date`, `browser`, `browser_version`) values(?,?,?,?,?,?)',
         [
           user[0].id,
-          newMac,
+          macAddress,
           currentDate.toDate(),
           expiryDate.toDate(),
           browser,
@@ -504,7 +496,7 @@ const loginService = async ({ otp, browser, browserVersion }) => {
         ],
       );
 
-      returnedMac = newMac;
+      returnedMac = macAddress;
     } else {
       await winficocWinfiDBPromisePool.execute(
         'update`user_macs` set `expiry_date` = ?, `browser` = ?, `browser_version` = ? where `user_id` = ? and `mac` = ?',
@@ -519,11 +511,6 @@ const loginService = async ({ otp, browser, browserVersion }) => {
 
       returnedMac = userMac[0].mac;
     }
-
-    await winficocWinfiDBPromisePool.execute(
-      'update `users` set `random_code` = NULL where `ver_code` = ?',
-      [otp],
-    );
 
     return Promise.resolve({
       user: JSON.parse(JSON.stringify(user[0])),
