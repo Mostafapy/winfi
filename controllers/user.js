@@ -5,6 +5,7 @@ const {
   checkUserMacStatusService,
   generateOtpService,
   loginService,
+  connectUserService,
 } = require('../services/user');
 const { asyncHandler } = require('../middleware/asyncHandler');
 const { ErrorResponse } = require('../utils/errorResponse');
@@ -184,6 +185,29 @@ const login = asyncHandler(async (req, res, next) => {
   }
 });
 
+/**
+ * @ [DESC]: connect user Controller
+ * @method GET
+ * @param req
+ * @param res
+ * @returns { Promise | Error}
+ */
+
+const connectUser = asyncHandler(async (req, res, next) => {
+  try {
+    const { body } = req;
+    const data = await connectUserService(body);
+
+    return res.status(200).json({
+      success: true,
+      msg: 'Successfully user connected',
+      data,
+    });
+  } catch (err) {
+    next(new ErrorResponse(err.message, err.stack));
+  }
+});
+
 module.exports = {
   createUser,
   checkIn,
@@ -192,4 +216,5 @@ module.exports = {
   clearPackage,
   generateOtp,
   login,
+  connectUser,
 };
