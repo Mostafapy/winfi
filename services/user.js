@@ -428,6 +428,12 @@ const generateOtpService = async ({ mobile }) => {
       });
     }
 
+    if (user.random_code) {
+      return Promise.resolve({
+        msg: 'Already sent verification code to This mobile',
+        data: null,
+      });
+    }
     const otp = generateCodesAndOtps();
 
     await winficocWinfiDBPromisePool.execute(
