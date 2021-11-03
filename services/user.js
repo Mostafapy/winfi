@@ -428,7 +428,7 @@ const generateOtpService = async ({ mobile }) => {
       });
     }
 
-    if (user.random_code) {
+    if (user[0].random_code) {
       return Promise.resolve({
         msg: 'Already sent verification code to This mobile',
         data: {
