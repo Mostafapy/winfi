@@ -45,9 +45,6 @@ module.exports = {
       rememberMe: {
         type: 'string',
       },
-      randomCode: {
-        type: 'string',
-      },
       fsqToken: {
         type: 'string',
       },

@@ -25,7 +25,6 @@ const createUserSchema = Joi.object()
     gAccessToken: Joi.string(),
     fsqToken: Joi.string(),
     rememberMe: Joi.string(),
-    randomCode: Joi.string(),
   });
 
 module.exports = { createUserSchema };

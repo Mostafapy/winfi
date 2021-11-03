@@ -72,7 +72,6 @@ const createUserService = async ({
   gAccessToken,
   fsqToken,
   rememberMe,
-  randomCode,
 }) => {
   try {
     // First validation of the mobile and email
@@ -116,7 +115,6 @@ const createUserService = async ({
     twAccessTokenSecret =
       twAccessTokenSecret != undefined ? twAccessTokenSecret : null;
     rememberMe = rememberMe != undefined ? rememberMe : null;
-    randomCode = randomCode != undefined ? randomCode : null;
 
     // hashPassword
     const uuid = generateCodesAndOtps();
@@ -125,13 +123,11 @@ const createUserService = async ({
 
     const hashedPassword = md5HashPassword(password);
 
-    const verCode = generateCodesAndOtps();
-
     await winficocWinfiDBPromisePool.query('START TRANSACTION');
     await radiusDBPromisePool.query('START TRANSACTION');
 
     await winficocWinfiDBPromisePool.execute(
-      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, ver_code, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, random_code, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'insert into  `users` (image, email, country_code, mobile, password, address, first_name, last_name, age, gender, display_name, likes, facebook_id, google_id, twitter_id, instagram_id, tripadvisor_id, fb_access_token, tw_access_token, tw_access_token_secret, g_access_token, fsq_token, remember_me, verified, deleted) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         image,
         email,
@@ -143,7 +139,6 @@ const createUserService = async ({
         lastName,
         age,
         gender,
-        verCode,
         displayName,
         likes,
         facebookId,
@@ -157,7 +152,6 @@ const createUserService = async ({
         gAccessToken,
         fsqToken,
         rememberMe,
-        randomCode,
         0,
         0,
       ],
