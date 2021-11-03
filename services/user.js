@@ -431,7 +431,9 @@ const generateOtpService = async ({ mobile }) => {
     if (user.random_code) {
       return Promise.resolve({
         msg: 'Already sent verification code to This mobile',
-        data: null,
+        data: {
+          user: user[0],
+        },
       });
     }
     const otp = generateCodesAndOtps();
