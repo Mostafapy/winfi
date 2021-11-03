@@ -523,6 +523,35 @@ const loginService = async ({ otp, browser, browserVersion, macAddress }) => {
   }
 };
 
+/**
+  Service to take mac address and return the user related to this mac address
+ * @param {Object} body
+ * @param {String} body.mac
+ * @returns {Promise | Error}
+ */
+
+const connectUserService = async ({ mac }) => {
+  try {
+    const userMac = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `user_macs` where `mac` = ?',
+      mac,
+    );
+
+    const user = await searchInDB(
+      winficocWinfiDBPromisePool,
+      'select * from `users` where `id` = ?',
+      [userMac[0].user_id],
+    );
+    return Promise.resolve({
+      user: JSON.parse(JSON.stringify(user[0])),
+    });
+  } catch (err) {
+    logger.error(err.message, err);
+    return Promise.reject(err);
+  }
+};
+
 module.exports = {
   createUserService,
   checkInService,
@@ -531,4 +560,5 @@ module.exports = {
   checkPlaceSubscriptionsService,
   generateOtpService,
   loginService,
+  connectUserService,
 };
